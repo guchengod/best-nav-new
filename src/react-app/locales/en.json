@@ -1,0 +1,76 @@
+{
+  "nav": {
+    "home": "Navigation",
+    "notes": "Notes",
+    "gallery": "Gallery",
+    "about": "About",
+    "friends": "Friends",
+    "settings": "Settings"
+  },
+  "header": {
+    "userProfile": "User Profile",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "common": {
+    "search": "Search",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "content": {
+    "searchPlaceholder": "Search navigation...",
+    "searchResults": "Search Results",
+    "loading": "Loading...",
+    "errors": {
+      "fetchFailed": "Failed to fetch categories",
+      "searchFailed": "Search failed"
+    }
+  },
+  "about": {
+    "sidebar": {
+      "title": "About",
+      "introduction": "Introduction",
+      "skills": "Skills",
+      "projects": "Projects",
+      "contact": "Contact"
+    },
+    "content": {
+      "introduction": {
+        "title": "Introduction",
+        "text": "Welcome to my personal website! I'm a passionate developer focused on frontend and full-stack development."
+      },
+      "skills": {
+        "title": "Professional Skills",
+        "frontend": "Frontend Development",
+        "backend": "Backend Development"
+      },
+      "projects": {
+        "title": "Projects",
+        "project1": {
+          "title": "Personal Navigation Website",
+          "description": "A modern personal navigation website built with React and TypeScript, featuring multi-language support, dark mode, and more."
+        }
+      },
+      "contact": {
+        "title": "Contact",
+        "email": "Email: your.email@example.com",
+        "social": "Social Media: GitHub, LinkedIn, Twitter"
+      }
+    }
+  },
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "usernamePlaceholder": "Enter your username",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Login",
+    "loggingIn": "Logging in...",
+    "error": "Error",
+    "success": "Login Successful",
+    "failed": "Login Failed",
+    "fillAllFields": "Please fill in all fields",
+    "invalidCredentials": "Invalid username or password",
+    "welcomeBack": "Welcome back, {{username}}"
+  }
+}

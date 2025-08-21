@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "home": "导航",
+    "notes": "笔记",
+    "gallery": "图库",
+    "about": "关于",
+    "friends": "友链",
+    "settings": "设置"
+  },
+  "header": {
+    "userProfile": "用户信息",
+    "login": "登录",
+    "logout": "退出登录"
+  },
+  "common": {
+    "search": "搜索",
+    "menu": "菜单",
+    "close": "关闭"
+  },
+  "content": {
+    "searchPlaceholder": "搜索导航...",
+    "searchResults": "搜索结果",
+    "loading": "加载中...",
+    "errors": {
+      "fetchFailed": "获取分类失败",
+      "searchFailed": "搜索失败"
+    }
+  },
+  "about": {
+    "sidebar": {
+      "title": "关于",
+      "introduction": "简介",
+      "skills": "技能",
+      "projects": "项目",
+      "contact": "联系方式"
+    },
+    "content": {
+      "introduction": {
+        "title": "个人简介",
+        "text": "欢迎来到我的个人网站！我是一名热爱技术的开发者，专注于前端和全栈开发。"
+      },
+      "skills": {
+        "title": "专业技能",
+        "frontend": "前端开发",
+        "backend": "后端开发"
+      },
+      "projects": {
+        "title": "项目展示",
+        "project1": {
+          "title": "个人导航网站",
+          "description": "一个使用 React 和 TypeScript 开发的现代化个人导航网站，支持多语言、暗色模式等特性。"
+        }
+      },
+      "contact": {
+        "title": "联系方式",
+        "email": "邮箱：your.email@example.com",
+        "social": "社交媒体：GitHub、LinkedIn、Twitter"
+      }
+    }
+  },
+  "friends": {
+    "sidebar": {
+      "title": "友情链接",
+      "all": "全部友链",
+      "favorites": "我的收藏",
+      "featured": "精选推荐",
+      "partners": "合作伙伴"
+    },
+    "content": {
+      "title": "友情链接",
+      "visit": "访问",
+      "add": "申请友链",
+      "categories": {
+        "all": "全部",
+        "favorites": "收藏",
+        "featured": "精选",
+        "partners": "合作"
+      }
+    }
+  },
+  "login": {
+    "title": "登录",
+    "username": "用户名",
+    "password": "密码",
+    "usernamePlaceholder": "请输入用户名",
+    "passwordPlaceholder": "请输入密码",
+    "submit": "登录",
+    "loggingIn": "登录中...",
+    "error": "错误",
+    "success": "登录成功",
+    "failed": "登录失败",
+    "fillAllFields": "请填写所有字段",
+    "invalidCredentials": "用户名或密码错误",
+    "welcomeBack": "欢迎回来，{{username}}"
+  }
+}

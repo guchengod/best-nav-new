@@ -21,7 +21,17 @@ app.get("/query/users/:id", async (c) => {
             .run<OrderRow>();
         return c.json(results);
     } catch (e) {
-        return c.json({ err: e.message }, 500);
+        // Type guard to safely handle the unknown error type
+        if (e instanceof Error) {
+            // Log the detailed error for your own records
+            console.error("DB Error:", e.message);
+        } else {
+            // Log the value if it's not a standard Error object
+            console.error("DB Error:", e);
+        }
+
+        // Return a generic error message to the client
+        return c.json({ err: "An internal server error occurred" }, 500);
     }
 });
 
