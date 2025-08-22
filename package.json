@@ -93,6 +93,7 @@
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
     "dev": "vite",
+    "wdev":"npx wrangler dev",
     "lint": "eslint .",
     "preview": "npm run build && vite preview",
     "react-scan": "concurrently \"npm run dev\" \"npx react-scan@latest http://localhost:3000/\""
