@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     Table,
     TableBody,
@@ -9,19 +9,19 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "../ui/table"
+} from "@/components/ui/table"
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogDescription,
-} from "../ui/dialog"
+} from "@/components/ui/dialog"
 import { Pencil, Trash2, Plus } from "lucide-react"
-import { Tag } from '../../types/settings'
-import { api } from '../../lib/api'
-import { toast } from "../../hooks/use-toast"
-import { Toaster } from "../ui/toaster"
+import { Tag } from '@/types/settings'
+import { api } from '@/lib/api'
+import { toast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 export function TagSettings() {
     const [dialogOpen, setDialogOpen] = useState(false)

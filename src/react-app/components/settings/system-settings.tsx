@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Button } from "../ui/button"
-import { Label } from "../ui/label"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "../ui/select"
-import { Switch } from "../ui/switch"
-import { Slider } from "../ui/slider"
-import { SystemSettings } from '../../types/settings'
-import { api } from '../../lib/api'
-import { toast } from "../../hooks/use-toast"
+} from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
+import { SystemSettings } from '@/types/settings'
+import { api } from '@/lib/api'
+import { toast } from "@/hooks/use-toast"
 import { useTranslation } from 'react-i18next'
 
 const defaultSettings: SystemSettings = {

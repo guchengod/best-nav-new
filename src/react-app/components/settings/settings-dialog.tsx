@@ -4,7 +4,7 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-} from "../ui/dialog"
+} from "@/components/ui/dialog"
 
 interface SettingsDialogProps {
     open: boolean;

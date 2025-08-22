@@ -2,7 +2,7 @@ import type { APIResponse,MenuItemTree,MenuItem, Website, Tag, SystemSettings } 
 export type { MenuItem, Website, Tag, SystemSettings }
 
 // 开发环境使用相对路径，生产环境使用绝对路径
-const BASE_URL = 'https://best-nav-server.sungaowei.com';
+// const BASE_URL = 'https://best-nav-server.sungaowei.com';
 
 // API错误处理
 class APIError extends Error {
@@ -32,7 +32,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}, requires
     }
 
     try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
+        const response = await fetch(`${endpoint}`, {
             ...options,
             headers: {
                 ...headers,

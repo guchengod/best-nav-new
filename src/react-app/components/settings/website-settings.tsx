@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Textarea } from "../ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "../ui/select"
+} from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -17,16 +17,16 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "../ui/table"
+} from "@/components/ui/table"
 
-import { Badge } from "../ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from "lucide-react"
-import { Website, MenuItem, Tag } from '../../types/settings'
-import { api } from '../../lib/api'
-import { toast } from "../../hooks/use-toast"
-import { Toaster } from "../ui/toaster"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog"
-import { MultipleTag } from "../ui/multiple-tag"
+import { Website, MenuItem, Tag } from '@/types/settings'
+import { api } from '@/lib/api'
+import { toast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { MultipleTag } from "@/components/ui/multiple-tag"
 
 export function WebsiteSettings() {
     const [searchTerm, setSearchTerm] = useState("")

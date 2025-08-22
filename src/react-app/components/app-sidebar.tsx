@@ -9,13 +9,13 @@ import {
     User
 } from "lucide-react"
 import { useState, useEffect } from "react"
-import { cn } from "../lib/utils"
+import { cn } from "@/lib/utils"
 import { MenuSettings } from "./settings/menu-settings"
 import { WebsiteSettings } from "./settings/website-settings"
 import { TagSettings } from "./settings/tag-settings"
 import { SystemSettingsPanel } from "./settings/system-settings"
 import { UserSettings } from "./settings/user-settings"
-import { api } from "../lib/api"
+import { api } from "@/lib/api"
 import { useNavigate, useLocation } from "react-router-dom"
 import {
     Sidebar,
@@ -30,14 +30,14 @@ import {
     SidebarMenuBadge,
     SidebarMenuSub,
     SidebarMenuSubItem,
-} from "./ui/sidebar"
+} from "@/components/ui/sidebar"
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-} from "./ui/collapsible"
+} from "@/components/ui/collapsible"
 import { SettingsDialog } from "./settings/settings-dialog"
-import { ScrollArea } from "./ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { MenuItemTree } from "../types/settings"
 
 const AppSidebar = () => {

@@ -1,9 +1,9 @@
-import {SidebarProvider} from "./ui/sidebar";
+import {SidebarProvider} from "@/components/ui/sidebar";
 import {AppSidebar} from "./app-sidebar";
 import {Header} from "./header";
 import {ScrollToTop} from "./scroll-to-top";
-import { ViewProvider } from "./ui/view-context";
-import { useView } from "./ui/view-context";
+import { ViewProvider } from "@/components/ui/view-context";
+import { useView } from "@/components/ui/view-context";
 import Content from "./content";
 import NoteContent from "./note-content";
 import NoteSidebar from "./note-sidebar";
@@ -14,7 +14,7 @@ import { AboutSidebar } from "./about-sidebar";
 import { FriendsSidebar } from './friends-sidebar'
 import { FriendsContent } from './friends-content'
 import { motion } from "framer-motion";
-import { ScrollArea } from "./ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area"
 function MainContent() {
     const { currentView } = useView();
     return (

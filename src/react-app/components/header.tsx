@@ -1,17 +1,17 @@
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import { Globe, Moon, Sun, Laptop, User } from "lucide-react"
 import { useTheme } from "./theme-provider"
 import { useTranslation } from 'react-i18next'
-import { Link } from "./ui/link"
-import { SidebarTrigger } from "./ui/sidebar"
-import { cn } from "../lib/utils"
-import { useView } from "./ui/view-context"
+import { Link } from "@/components/ui/link"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
+import { useView } from "@/components/ui/view-context"
 import { useState } from 'react'
 import { Login } from "./login"
 

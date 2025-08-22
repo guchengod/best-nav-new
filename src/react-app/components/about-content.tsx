@@ -1,10 +1,10 @@
 'use client'
 
-import { cn } from '../lib/utils'
-import { ScrollArea } from './ui/scroll-area'
+import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from '@/components/ui/button'
 import { Mail, Github, Linkedin, Twitter } from 'lucide-react'
 
 interface AboutContentProps {

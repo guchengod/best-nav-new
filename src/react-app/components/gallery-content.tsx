@@ -1,18 +1,18 @@
-import { cn } from '../lib/utils'
-import { ScrollArea } from './ui/scroll-area'
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { useState } from 'react'
-import { AspectRatio } from './ui/aspect-ratio'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Heart, Download, Share2, CalendarIcon, ArrowUpDown, ImageIcon } from 'lucide-react'
-import { Button } from './ui/button'
-import { Pagination } from './ui/pagination'
+import { Button } from '@/components/ui/button'
+import { Pagination } from '@/components/ui/pagination'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select"
+} from "@/components/ui/select"
 
 interface Image {
   id: number

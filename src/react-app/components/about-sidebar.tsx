@@ -1,6 +1,6 @@
 import React from 'react'
-import { ScrollArea } from './ui/scroll-area'
-import { cn } from '../lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 import {
     Sidebar,
     SidebarContent,
@@ -10,7 +10,7 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
-} from './ui/sidebar.tsx'
+} from '@/components/ui/sidebar.tsx'
 import { User2, Code2, Briefcase, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

@@ -1,6 +1,6 @@
 
 
-import '../lib/prism';
+import '@/lib/prism';
 import { useState, useCallback, useEffect } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -31,8 +31,8 @@ import { createPortal } from 'react-dom';
 import { mergeRegister } from '@lexical/utils';
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Pencil, 
   Save, 

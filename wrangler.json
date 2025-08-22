@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "best-nav",
+	"name": "best-nav-new",
 	"main": "./src/worker/index.ts",
 	"compatibility_date": "2025-04-01",
 	"compatibility_flags": [
@@ -43,7 +43,7 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
-	"upload_source_maps": true,
+	"upload_source_maps": false,
 	"assets": {
 		"directory": "./dist/client",
 		"not_found_handling": "single-page-application"
@@ -52,7 +52,14 @@
       {
         "binding": "DB",
         "database_name": "best-nav",
-        "database_id": "487b7ed6-7ce3-439c-bd74-150fc3836894"
+        "database_id": "487b7ed6-7ce3-439c-bd74-150fc3836894",
+        "migrations_dir": "drizzle"
+      }
+    ],
+    "r2_buckets": [
+      {
+        "binding": "BUCKET",
+        "bucket_name": "best-nav-bucket"
       }
     ]
 }

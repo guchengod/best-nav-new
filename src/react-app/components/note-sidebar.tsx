@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { File, Folder, Plus, X } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarFooter,
-} from "./ui/sidebar";
+} from "@/components/ui/sidebar";
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import * as Dialog from '@radix-ui/react-dialog';
 

@@ -1,7 +1,7 @@
 
 import React from 'react'
-import { ScrollArea } from './ui/scroll-area'
-import { cn } from '../lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 import {
   Sidebar,
   SidebarContent,
@@ -12,9 +12,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from './ui/sidebar'
+} from '@/components/ui/sidebar'
 import { Image as ImageIcon, FolderHeart, Clock, Heart } from 'lucide-react'
-import { Separator } from './ui/separator'
+import { Separator } from '@/components/ui/separator'
 
 interface GalleryItem {
   id: string

@@ -1,10 +1,10 @@
 import { Search } from "lucide-react";
-import { Input } from "./ui/input"
+import { Input } from "@/components/ui/input"
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { api, type Website } from "../lib/api";
+import { api, type Website } from "@/lib/api";
 import { useTranslation } from "react-i18next";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 import { useSearchParams } from 'react-router-dom';
 import { useBreakpoint } from "../hooks/use-breakpoint";
 

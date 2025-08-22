@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "../ui/select"
+} from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -16,20 +16,20 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "../ui/table"
+} from "@/components/ui/table"
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogDescription,
-} from "../ui/dialog"
+} from "@/components/ui/dialog"
 import { Pencil, Trash2, Plus } from "lucide-react"
-import { MenuItem } from '../../types/settings'
-import { api } from '../../lib/api'
-import { toast } from "../../hooks/use-toast"
-import { Toaster } from "../ui/toaster"
-import { Pagination } from "../ui/pagination"
+import { MenuItem } from '@/types/settings.ts'
+import { api } from '@/lib/api.ts'
+import { toast } from "@/hooks/use-toast.ts"
+import { Toaster } from "@/components/ui/toaster"
+import { Pagination } from "@/components/ui/pagination"
 
 export function MenuSettings() {
     const [dialogOpen, setDialogOpen] = useState(false)
