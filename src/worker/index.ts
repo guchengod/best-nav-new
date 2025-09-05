@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-// import { OrderRow } from './type.ts'
 import { Context } from 'hono';
 import { cors } from 'hono/cors';
 import * as jose from 'jose';

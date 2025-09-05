@@ -114,7 +114,7 @@ const Content = () => {
     };
 
     return (
-        <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className=" overflow-auto w-full">
             <div className="container mx-auto">
                 <div className="w-full">
                     <div className="flex justify-center mb-6">

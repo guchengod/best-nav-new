@@ -390,7 +390,7 @@ export default function NoteContent({ title = "未命名笔记", onTitleChange }
           <h1 className="text-2xl font-bold flex-1">{title}</h1>
         )}
         <Button
-          variant="sidebar"
+          variant="default"
           size="icon"
           onClick={() => setIsEditing(!isEditing)}
           className="rounded-md"

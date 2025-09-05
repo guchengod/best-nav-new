@@ -1,5 +1,3 @@
-'use client';
-
 import React, { createContext, useContext, useState } from 'react';
 
 type ViewType = 'navigation' | 'notes' | 'gallery' | 'about' | 'friends';

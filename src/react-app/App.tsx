@@ -1,5 +1,4 @@
 import './App.css'
-import { NavigationProvider } from "./context/navigation-context"
 import { Suspense, lazy } from 'react'
 import { Loader2 } from 'lucide-react'
 import { BrowserRouter } from 'react-router-dom'
@@ -7,7 +6,6 @@ import { Toaster } from "./components/ui/toaster"
 
 // 懒加载组件
 const Layout = lazy(() => import("./components/layout"))
-const Content = lazy(() => import("./components/content"))
 
 // 加载中组件
 const LoadingSpinner = () => (
@@ -19,16 +17,10 @@ const LoadingSpinner = () => (
 function App() {
   return (
     <BrowserRouter>
-      <NavigationProvider>
         <Toaster />
         <Suspense fallback={<LoadingSpinner />}>
-          <Layout>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Content />
-            </Suspense>
-          </Layout>
+          <Layout/>
         </Suspense>
-      </NavigationProvider>
     </BrowserRouter>
   )
 }
