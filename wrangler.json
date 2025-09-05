@@ -56,8 +56,8 @@
     "d1_databases": [
       {
         "binding": "DB",
-        "database_name": "best-nav",
-        "database_id": "487b7ed6-7ce3-439c-bd74-150fc3836894",
+        "database_name": "best_nav_db",
+        "database_id": "9074db91-8e6f-458f-9b2e-38e0de1f326e",
         "migrations_dir": "drizzle"
       }
     ],
