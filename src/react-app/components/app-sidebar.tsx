@@ -123,7 +123,7 @@ const AppSidebar = () => {
                 }}
             >
                 <img
-                    src="/icon.svg"
+                    src="https://img.sungaowei.com/api/rfile/best-nav.png"
                     alt="Best Nav Logo"
                     className="w-8 h-8 dark:invert"
                 />

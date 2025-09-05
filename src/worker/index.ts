@@ -682,7 +682,7 @@ app.post('/api/login', async (c) => {
             .from(users)
             .where(eq(users.username, username))
             .get();
-
+        console.log('name', user);
         if (!user) {
             return c.json({ error: 'Invalid username or password' }, 401);
         }

@@ -1,3 +1,58 @@
+CREATE TABLE menus (
+                       id TEXT PRIMARY KEY,
+                       name TEXT NOT NULL,
+                       icon TEXT,
+                       url TEXT,
+                       parent_id TEXT,
+                       sort_order INTEGER DEFAULT 0,
+                       created_at TEXT DEFAULT (datetime('now')),
+                       updated_at TEXT DEFAULT (datetime('now')),
+                       FOREIGN KEY (parent_id) REFERENCES menus(id) ON DELETE SET NULL
+);
+
+CREATE TABLE system_settings (
+                                 id TEXT PRIMARY KEY,
+                                 theme TEXT CHECK(theme IN ('light', 'dark', 'system')) DEFAULT 'system',
+                                 language TEXT CHECK(language IN ('zh', 'en')) DEFAULT 'zh',
+                                 sidebar_width INTEGER DEFAULT 240,
+                                 show_tag_colors INTEGER DEFAULT 1,
+                                 created_at TEXT DEFAULT (datetime('now')),
+                                 updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE tags (
+                      id TEXT PRIMARY KEY,
+                      name TEXT NOT NULL UNIQUE,
+                      color TEXT,
+                      created_at TEXT DEFAULT (datetime('now')),
+                      updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE users (     id TEXT PRIMARY KEY,     username TEXT NOT NULL UNIQUE,     password TEXT NOT NULL,     created_at TEXT NOT NULL,     updated_at TEXT NOT NULL );
+
+CREATE TABLE website_tags (
+                              website_id TEXT NOT NULL,
+                              tag_id TEXT NOT NULL,
+                              created_at TEXT DEFAULT (datetime('now')),
+                              PRIMARY KEY (website_id, tag_id),
+                              FOREIGN KEY (website_id) REFERENCES websites(id) ON DELETE CASCADE,
+                              FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+CREATE TABLE websites (
+                          id TEXT PRIMARY KEY,
+                          name TEXT NOT NULL,
+                          url TEXT NOT NULL UNIQUE,
+                          icon TEXT,
+                          description TEXT,
+                          alive INTEGER DEFAULT 1,
+                          menu_id TEXT,
+                          sort_order INTEGER DEFAULT 0,
+                          created_at TEXT DEFAULT (datetime('now')),
+                          updated_at TEXT DEFAULT (datetime('now')),
+                          FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE SET NULL
+);
+
 -- 插入默认管理员用户 (密码: admin123)
 INSERT INTO users (id, username, password, created_at, updated_at) VALUES
 ('1', 'admin', '0192023a7bbd73250516f069df18b500', datetime('now'), datetime('now'));
@@ -118,4 +173,4 @@ INSERT INTO website_tags (website_id, tag_id) VALUES
 ('20', '1'), ('20', '3'); -- 网易云搜索关联“搜索”和“中文”
 
 INSERT INTO system_settings (id, theme, language, sidebar_width, show_tag_colors) VALUES
-('1', 'light', 'zh', 240, 1),
+('1', 'light', 'zh', 240, 1);
