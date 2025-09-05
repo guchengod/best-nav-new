@@ -688,6 +688,7 @@ app.post('/api/login', async (c) => {
         }
 
         const hashedPassword = await md5(password);
+        console.log('hashedPassword', hashedPassword);
         if (hashedPassword !== user.password) {
             return c.json({ error: 'Invalid username or password' }, 401);
         }
