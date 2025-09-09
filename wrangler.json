@@ -53,7 +53,7 @@
 		"directory": "./dist/client",
 		"not_found_handling": "single-page-application"
 	},
-    "vars": { "JWT_SECRET": "11111122222222333333" },
+    "vars": { "JWT_SECRET": "GvNHCG5WReNznrvCeztm" },
     "d1_databases": [
       {
         "binding": "DB",

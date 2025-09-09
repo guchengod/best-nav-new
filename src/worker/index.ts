@@ -1,10 +1,9 @@
-import { Hono } from "hono";
-import { Context } from 'hono';
-import { cors } from 'hono/cors';
+import {Context, Hono} from "hono";
+import {cors} from 'hono/cors';
 import * as jose from 'jose';
-import {eq, and, sql, like, or, desc, count, asc} from 'drizzle-orm';
-import { createDb, menus, websites, tags, websiteTags, systemSettings, users } from './db';
-import { Menu, Website, Tag, SystemSettings } from './type.ts';
+import {and, asc, count, desc, eq, like, or, sql} from 'drizzle-orm';
+import {createDb, menus, systemSettings, tags, users, websites, websiteTags} from './db';
+import {Menu, SystemSettings, Tag, Website} from './type.ts';
 
 // This ensures c.env.DB is correctly typed
 type Bindings = {
@@ -25,8 +24,7 @@ async function md5(message: string): Promise<string> {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('MD5', msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 //
@@ -185,8 +183,8 @@ app.get('/api/menus/root', async (c) => {
         const rootMenus = await db
             .select()
             .from(menus)
-            .where(sql`${menus.parentId} IS NULL OR ${menus.parentId} = ''`)
-            // .orderBy(menus.order || sql`created_at DESC`);
+            // .where(eq(menus.parentId,"0"))
+            .orderBy(menus.sortOrder);
 
         return c.json({ data: rootMenus });
     } catch (error) {
@@ -215,18 +213,23 @@ app.post('/api/menus', authMiddleware, async (c) => {
         name: body.name,
         icon: body.icon || null, // 处理可选字段
         url: body.url || null,
-        parentId: body.parentId, // 这必须是 string，不能是 undefined
+        parentId: body.parentId,
         sortOrder: body.sortOrder || 0,
         createdAt: now,
         updatedAt: now,
     };
+    try{
+        const result = await db.insert(menus).values(insertData);
+        return c.json({
+            data: { id },
+            result
+        });
+    }catch (error){
+        console.error('Failed add menus:', error);
+        return c.json({ err: error }, 500);
+    }
 
-    const result = await db.insert(menus).values(insertData);
 
-    return c.json({
-        data: { id },
-        result
-    }, 201);
 });
 
 app.put('/api/menus/:id', authMiddleware, async (c) => {
@@ -779,6 +782,7 @@ function buildMenuTree(menuList: Menu[]): Menu[] {
         } else {
             rootMenus.push(menuWithChildren);
         }
+
     });
 
     return rootMenus;

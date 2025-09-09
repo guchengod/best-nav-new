@@ -81,7 +81,7 @@ export function MenuSettings() {
 
     const handleAddClick = async () => {
         await loadParentMenus()
-        setEditingMenu({createdAt: "", icon: "", id: "", name: "", parentId: "", sortOrder: 0, updatedAt: "", url: ""})
+        setEditingMenu({createdAt: "", icon: "", id: "", name: "", parentId: "0", sortOrder: 0, updatedAt: "", url: ""})
         setDialogOpen(true)
     }
 
@@ -167,7 +167,7 @@ export function MenuSettings() {
                             <TableRow key={menu.id}>
                                 <TableCell>{(currentPage - 1) * pageSize + index + 1}</TableCell>
                                 <TableCell>{menu.name}</TableCell>
-                                <TableCell>{menu.parentId ? '二级菜单' : '一级菜单'}</TableCell>
+                                <TableCell>{menu.parentId === '0' ?  '一级菜单': '二级菜单'}</TableCell>
                                 <TableCell>{parentMenu?.name || '-'}</TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Button
@@ -218,7 +218,7 @@ export function MenuSettings() {
                         <div className="space-y-2">
                             <Label>父级菜单</Label>
                             <Select
-                                value={editingMenu?.parentId || ''}
+                                value={editingMenu?.parentId || '0'}
                                 onValueChange={(value) => setEditingMenu({
                                     createdAt: "",
                                     icon: "",
@@ -232,8 +232,10 @@ export function MenuSettings() {
                                     <SelectValue placeholder="选择父级菜单" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">无</SelectItem>
-                                    {parentMenus.map((menu) => (
+                                    <SelectItem value="0" key="0">无</SelectItem>
+                                    {parentMenus
+                                        .filter(menu => menu.id !== null && menu.id !== undefined && menu.id !== '' && menu.id !== '0')
+                                        .map((menu) => (
                                         <SelectItem key={menu.id} value={menu.id}>
                                             {menu.name}
                                         </SelectItem>
