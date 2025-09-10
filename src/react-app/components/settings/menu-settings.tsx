@@ -162,13 +162,12 @@ export function MenuSettings() {
                 </TableHeader>
                 <TableBody>
                     {menus.map((menu, index) => {
-                        const parentMenu = menu.parentId ? menus.find(m => m.id === menu.parentId) : null;
                         return (
                             <TableRow key={menu.id}>
                                 <TableCell>{(currentPage - 1) * pageSize + index + 1}</TableCell>
                                 <TableCell>{menu.name}</TableCell>
                                 <TableCell>{menu.parentId === '0' ?  '一级菜单': '二级菜单'}</TableCell>
-                                <TableCell>{parentMenu?.name || '-'}</TableCell>
+                                <TableCell>{menu.parentName || '-'}</TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Button
                                         variant="ghost"

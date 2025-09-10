@@ -1,6 +1,7 @@
 export interface APIResponse<T> {
     data: T;
     error?: string;
+    msg?: string;
     pagination?: {
         total: number;
         page: number;
@@ -16,6 +17,7 @@ export interface MenuItem {
     icon?: string;
     url: string;
     parentId?: string;
+    parentName?: string;
     sortOrder?: number;
     createdAt?: string;
     updatedAt?: string;

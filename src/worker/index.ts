@@ -1,7 +1,7 @@
 import {Context, Hono} from "hono";
 import {cors} from 'hono/cors';
 import * as jose from 'jose';
-import {and, asc, count, desc, eq, like, or, sql} from 'drizzle-orm';
+import {and, asc, count, desc, eq, inArray, like, or, sql} from 'drizzle-orm';
 import {createDb, menus, systemSettings, tags, users, websites, websiteTags} from './db';
 import {Menu, SystemSettings, Tag, Website} from './type.ts';
 
@@ -161,8 +161,29 @@ app.get('/api/getmenus', async (c) => {
             .limit(pageSize)
             .offset(offset);
 
+        // 2. 收集所有唯一的parentId（排除空值）
+        const parentIds = [...new Set(results.map(item => item.parentId).filter(Boolean))];
+
+        // 3. 查询所有父菜单的id和name
+        const parentMenus = parentIds.length > 0
+            ? await db.select({ id: menus.id, name: menus.name })
+                .from(menus)
+                .where(inArray(menus.id, parentIds))
+            : [];
+
+// 4. 创建父菜单映射表（id -> name）
+        const parentMap = Object.fromEntries(
+            parentMenus.map(menu => [menu.id, menu.name])
+        );
+
+// 5. 为每个结果添加parentName
+        const resultsWithParentName = results.map(item => ({
+            ...item,
+            parentName: parentMap[item.parentId] || null // 如果找不到则为null
+        }));
+
         return c.json({
-            data: results,
+            data: resultsWithParentName,
             pagination: {
                 total,
                 page,
@@ -251,9 +272,15 @@ app.put('/api/menus/:id', authMiddleware, async (c) => {
 app.delete('/api/menus/:id', authMiddleware, async (c) => {
     const id = c.req.param('id');
     const db = createDb(c.env.DB);
-
+    const [deleteMenu] = await db.select().from(menus).where(eq(menus.id, id)).limit(1);
+    if (deleteMenu.parentId === "0") {
+      const  children = await db.select().from(menus).where(eq(menus.parentId, id))
+        if (children.length > 0) {
+           return  c.json({ msg: '请先删除该菜单下的子菜单' ,success: true });
+        }
+    }
     await db.delete(menus).where(eq(menus.id, id));
-    return c.json({ data: { success: true } });
+    return c.json({ data: { success: true ,msg: '删除成功'} });
 });
 
 app.get('/api/websites', async (c) => {
@@ -761,11 +788,39 @@ app.get('/auth/github/callback', async (c) => {
 });
 
 // Helper functions
+// function buildMenuTree(menuList: Menu[]): Menu[] {
+//     const menuMap = new Map<string, Menu>();
+//     const rootMenus: Menu[] = [];
+//
+//     // First pass: Create menu map
+//     menuList.forEach(menu => {
+//         menuMap.set(menu.id, { ...menu, children: [] });
+//     });
+//
+//     // Second pass: Build tree structure
+//     menuList.forEach(menu => {
+//         const menuWithChildren = menuMap.get(menu.id)!;
+//         if (menu.parentId) {
+//             const parent = menuMap.get(menu.parentId);
+//             if (parent) {
+//                 parent.children = parent.children || [];
+//                 parent.children.push(menuWithChildren);
+//             }
+//         } else {
+//             rootMenus.push(menuWithChildren);
+//         }
+//
+//     });
+//
+//     return rootMenus;
+// }
+
+
 function buildMenuTree(menuList: Menu[]): Menu[] {
     const menuMap = new Map<string, Menu>();
     const rootMenus: Menu[] = [];
 
-    // First pass: Create menu map
+    // First pass: Create menu map with initialized children
     menuList.forEach(menu => {
         menuMap.set(menu.id, { ...menu, children: [] });
     });
@@ -773,18 +828,36 @@ function buildMenuTree(menuList: Menu[]): Menu[] {
     // Second pass: Build tree structure
     menuList.forEach(menu => {
         const menuWithChildren = menuMap.get(menu.id)!;
-        if (menu.parentId) {
+
+        // Check if it's a root menu (parentId is "0")
+        if (menu.parentId === "0") {
+            rootMenus.push(menuWithChildren);
+        } else {
             const parent = menuMap.get(menu.parentId);
             if (parent) {
                 parent.children = parent.children || [];
                 parent.children.push(menuWithChildren);
             }
-        } else {
-            rootMenus.push(menuWithChildren);
         }
-
     });
 
+    // Sort the entire tree recursively
+    const sortTree = (menus: Menu[]) => {
+        menus.sort((a, b) => {
+            // Handle null sortOrder by treating them as Infinity
+            const orderA = a.sortOrder ?? Infinity;
+            const orderB = b.sortOrder ?? Infinity;
+            return orderA - orderB;
+        });
+
+        menus.forEach(menu => {
+            if (menu.children && menu.children.length > 0) {
+                sortTree(menu.children);
+            }
+        });
+    };
+
+    sortTree(rootMenus);
     return rootMenus;
 }
 
