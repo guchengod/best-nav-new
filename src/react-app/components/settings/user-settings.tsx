@@ -133,7 +133,7 @@ export function UserSettings() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {users.map((user) => (
+                    {users?.map((user) => (
                         <TableRow key={user.id}>
                             <TableCell>{user.username}</TableCell>
                             <TableCell className="text-right space-x-2">
@@ -153,7 +153,13 @@ export function UserSettings() {
                                 </Button>
                             </TableCell>
                         </TableRow>
-                    ))}
+                    ))?? (
+                        <TableRow>
+                            <TableCell colSpan={2} className="text-center text-muted-foreground">
+                                暂无用户数据
+                            </TableCell>
+                        </TableRow>
+                    )}
                 </TableBody>
             </Table>
 
