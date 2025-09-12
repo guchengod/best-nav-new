@@ -2,8 +2,9 @@ import {Context, Hono} from "hono";
 import {cors} from 'hono/cors';
 import * as jose from 'jose';
 import {and, asc, count, desc, eq, inArray, like, or, sql} from 'drizzle-orm';
-import {createDb, menus, systemSettings, tags, users, websites, websiteTags} from './db';
+import {createDb,} from './db';
 import {Menu, SystemSettings, Tag, Website} from './type.ts';
+import { menus, systemSettings, tags, users, websites, websiteTags } from "./db/schema.ts";
 
 // This ensures c.env.DB is correctly typed
 type Bindings = {
@@ -292,57 +293,74 @@ app.get('/api/websites', async (c) => {
     const offset = (page - 1) * pageSize;
 
     try {
-        // 构建 where 条件
-        const whereConditions = [];
-        if (menuId) {
-            whereConditions.push(eq(websites.menuId, menuId));
-        }
-        if (search) {
-            whereConditions.push(
-                or(
-                    like(websites.name, `%${search}%`),
-                    like(websites.description, `%${search}%`)
-                )
-            );
-        }
+        // // 构建 where 条件
+        // const whereConditions = [];
+        // if (menuId) {
+        //     whereConditions.push(eq(websites.menuId, menuId));
+        // }
+        // if (search) {
+        //     whereConditions.push(
+        //         or(
+        //             like(websites.name, `%${search}%`),
+        //             like(websites.description, `%${search}%`)
+        //         )
+        //     );
+        // }
+        //
+        // // 获取总数
+        // const countResult = await db
+        //     .select({ count: count() })
+        //     .from(websites)
+        //     .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+        // const total = countResult[0]?.count || 0;
+        //
+        // // 获取分页数据（包含标签）
+        // const results = await db
+        //     .select({
+        //         websites,
+        //         tags: tags
+        //     })
+        //     .from(websites)
+        //     .leftJoin(websiteTags, eq(websites.id, websiteTags.websiteId))
+        //     .leftJoin(tags, eq(websiteTags.tagId, tags.id))
+        //     .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+        //     .orderBy(desc(websites.sortOrder))
+        //     .limit(pageSize)
+        //     .offset(offset);
+        //
+        // // 处理结果，将标签合并到网站数据中
+        // const websiteMap = new Map();
+        // results.forEach((row) => {
+        //     if (!websiteMap.has(row.websites.id)) {
+        //         websiteMap.set(row.websites.id, {
+        //             ...row.websites,
+        //             tags: []
+        //         });
+        //     }
+        //     if (row.tags) {
+        //         websiteMap.get(row.websites.id).tags.push(row.tags);
+        //     }
+        // });
 
-        // 获取总数
-        const countResult = await db
-            .select({ count: count() })
-            .from(websites)
-            .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
-        const total = countResult[0]?.count || 0;
-
-        // 获取分页数据（包含标签）
-        const results = await db
-            .select({
-                websites,
-                tags: tags
-            })
-            .from(websites)
-            .leftJoin(websiteTags, eq(websites.id, websiteTags.websiteId))
-            .leftJoin(tags, eq(websiteTags.tagId, tags.id))
-            .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
-            .orderBy(desc(websites.sortOrder))
-            .limit(pageSize)
-            .offset(offset);
-
-        // 处理结果，将标签合并到网站数据中
-        const websiteMap = new Map();
-        results.forEach((row) => {
-            if (!websiteMap.has(row.websites.id)) {
-                websiteMap.set(row.websites.id, {
-                    ...row.websites,
-                    tags: []
-                });
-            }
-            if (row.tags) {
-                websiteMap.get(row.websites.id).tags.push(row.tags);
-            }
-        });
-
+        const [data, totalResult] = await Promise.all([
+            db.query.websites.findMany({
+                with: {
+                    menu: true,
+                    tags: {
+                        with: {
+                            tag: true
+                        }
+                    }
+                },
+                orderBy: (websites, { asc }) => [asc(websites.sortOrder)],
+                limit: pageSize,
+                offset: offset
+            }),
+            db.select({ count: count() }).from(websites)
+        ]);
+        const total = totalResult[0]?.count || 0;
         return c.json({
-            data: Array.from(websiteMap.values()),
+            data: data,
             pagination: {
                 total,
                 page,

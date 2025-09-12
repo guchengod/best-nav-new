@@ -1,5 +1,5 @@
 import { integer, sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
+import {relations, sql} from 'drizzle-orm';
 
 export const users = sqliteTable('users', {
   id: text('id').primaryKey(),
@@ -64,3 +64,42 @@ export const systemSettings = sqliteTable('system_settings', {
   createdAt: text('created_at').default(sql`datetime('now')`),
   updatedAt: text('updated_at').default(sql`datetime('now')`),
 });
+
+// Menus 关系配置
+export const menusRelations = relations(menus, ({ many, one }) => ({
+    websites: many(websites),
+    children: many(menus, { relationName: 'menu_children' }),
+    parent: one(menus, {
+        fields: [menus.parentId],
+        references: [menus.id],
+        relationName: 'menu_children'
+    })
+}));
+
+// Websites 关系配置
+export const websitesRelations = relations(websites, ({ one, many }) => ({
+    menu: one(menus, {
+        fields: [websites.menuId],
+        references: [menus.id]
+    }),
+    tags: many(websiteTags)
+}));
+
+
+// Tags 关系配置
+export const tagsRelations = relations(tags, ({ many }) => ({
+    websites: many(websiteTags)
+}));
+
+
+// WebsiteTags 关系配置（关联表）
+export const websiteTagsRelations = relations(websiteTags, ({ one }) => ({
+    website: one(websites, {
+        fields: [websiteTags.websiteId],
+        references: [websites.id]
+    }),
+    tag: one(tags, {
+        fields: [websiteTags.tagId],
+        references: [tags.id]
+    })
+}));
