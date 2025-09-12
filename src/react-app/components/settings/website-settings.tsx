@@ -453,167 +453,148 @@ export function WebsiteSettings() {
             {/*    </DialogContent>*/}
             {/*</Dialog>*/}
 
-            <div className="bg-white rounded-lg border p-6 max-w-7xl mx-auto">
-                <div className="flex flex-col space-y-4">
-                    {/* 标题和操作区域 */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <h2 className="text-2xl font-semibold">网站列表</h2>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-                            <Input
-                                placeholder="搜索网站..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full sm:w-[200px]"
-                            />
-                            <Button onClick={() => setIsAdding(true)} className="whitespace-nowrap">
-                                <Plus className="mr-2 h-4 w-4" />
-                                添加网站
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* 表格容器 */}
-                    <div className="overflow-x-auto">
-                        <div className="min-w-[1000px]">
-                            {/* 表头 - 使用 Grid */}
-                            <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 bg-gray-50 rounded-t-lg border-b">
-                                <div className="text-center font-medium">序号</div>
-                                <div className="font-medium">名称</div>
-                                <div className="font-medium">链接</div>
-                                <div className="font-medium">描述</div>
-                                <div className="font-medium">菜单</div>
-                                <div className="font-medium">标签</div>
-                                <div className="text-right font-medium">操作</div>
-                            </div>
-
-                            {/* 表格内容 - 使用 Grid */}
-                            <div className="space-y-2 mt-2">
-                                {loading ? (
-                                    <div className="grid grid-cols-1 py-8">
-                                        <div className="flex justify-center items-center">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                                        </div>
-                                    </div>
-                                ) : websites.length === 0 ? (
-                                    <div className="grid grid-cols-1 py-8">
-                                        <div className="flex justify-center items-center text-gray-500">
-                                            暂无数据
-                                        </div>
-                                    </div>
-                                ) : (
-                                    websites.map((website, index) => {
-                                        const menuItem = secondLevelMenus.find(menu => menu.id === website.menuId)
-                                        const parentMenu = menus.find(menu => menu.id === menuItem?.parentId)
-                                        const websiteTags = tags.filter(tag => website.tags.map(tag => tag.id)?.includes(tag.id)) || []
-
-                                        return (
-                                            <div
-                                                key={website.id}
-                                                className="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_100px] gap-4 px-4 py-3 border-b hover:bg-gray-50 items-center"
-                                            >
-                                                {/* 序号 */}
-                                                <div className="text-center">
-                                                    {(currentPage - 1) * pageSize + index + 1}
-                                                </div>
-
-                                                {/* 名称 */}
-                                                <div className="min-w-[120px]">
-                                                    <div className="truncate" title={website.name}>{website.name}</div>
-                                                </div>
-
-                                                {/* 链接 */}
-                                                <div className="min-w-[150px]">
-                                                    <div className="truncate" title={website.url}>{website.url}</div>
-                                                </div>
-
-                                                {/* 描述 */}
-                                                <div className="min-w-[120px]">
-                                                    <div className="truncate" title={website.description}>{website.description}</div>
-                                                </div>
-
-                                                {/* 菜单 */}
-                                                <div className="min-w-[120px]">
-                                                    {menuItem && parentMenu && (
-                                                        <div className="truncate" title={`${parentMenu.name} > ${menuItem.name}`}>
-                                                            {parentMenu.name} &gt; {menuItem.name}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* 标签 */}
-                                                <div className="min-w-[150px]">
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {websiteTags.map((tag) => (
-                                                            <Badge
-                                                                key={tag.id}
-                                                                variant="outline"
-                                                                className="truncate max-w-[80px]"
-                                                                style={{
-                                                                    backgroundColor: `${tag.color}20`,
-                                                                    color: tag.color,
-                                                                    borderColor: tag.color
-                                                                }}
-                                                                title={tag.name}
-                                                            >
-                                                                {tag.name}
-                                                            </Badge>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                {/* 操作按钮 */}
-                                                <div className="flex justify-end space-x-2">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleEdit(website)}
-                                                    >
-                                                        <Pencil className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleDelete(website.id)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        )
-                                    })
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 分页 */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t">
-                        <div className="text-sm text-muted-foreground">
-                            共 {totalPages} 页
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1 || loading}
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <div className="text-sm">
-                                第 {currentPage} 页
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages || loading}
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </div>
+            <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 className="text-lg font-semibold">网站列表</h2>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+                        <Input
+                            placeholder="搜索网站..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full sm:w-[200px]"
+                        />
+                        <Button onClick={() => setIsAdding(true)} className="whitespace-nowrap">
+                            <Plus className="mr-2 h-4 w-4" />
+                            添加网站
+                        </Button>
                     </div>
                 </div>
+
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-16 text-center">序号</TableHead>
+                            <TableHead className="w-40">名称</TableHead>
+                            <TableHead className="w-40">链接</TableHead>
+                            <TableHead className="w-40">描述</TableHead>
+                            <TableHead className="w-40">菜单</TableHead>
+                            <TableHead className="w-40">标签</TableHead>
+                            <TableHead className="w-24 text-right">操作</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="text-center py-8">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                                </TableCell>
+                            </TableRow>
+                        ) : websites.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="text-center py-8">
+                                    暂无数据
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            websites.map((website, index) => {
+                                const menuItem = secondLevelMenus.find(menu => menu.id === website.menuId)
+                                const parentMenu = menus.find(menu => menu.id === menuItem?.parentId)
+                                const websiteTags = tags.filter(tag => website.tags?.map((t: any) => t.id)?.includes(tag.id)) || []
+
+                                return (
+                                    <TableRow key={website.id}>
+                                        <TableCell className="text-center">
+                                            {(currentPage - 1) * pageSize + index + 1}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="truncate" title={website.name}>{website.name}</div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="truncate" title={website.url}>{website.url}</div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="truncate" title={website.description}>{website.description}</div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {menuItem && parentMenu && (
+                                                <div className="truncate" title={`${parentMenu.name} > ${menuItem.name}`}>
+                                                    {parentMenu.name} &gt; {menuItem.name}
+                                                </div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {websiteTags.map((tag) => (
+                                                    <Badge
+                                                        key={tag.id}
+                                                        variant="outline"
+                                                        className="truncate max-w-[80px]"
+                                                        style={{
+                                                            backgroundColor: `${tag.color}20`,
+                                                            color: tag.color,
+                                                            borderColor: tag.color
+                                                        }}
+                                                        title={tag.name}
+                                                    >
+                                                        {tag.name}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex justify-end space-x-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleEdit(website)}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(website.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })
+                        )}
+                    </TableBody>
+                </Table>
+
+                {/* 分页 */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-sm text-muted-foreground">
+                        共 {totalPages} 页
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1 || loading}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <div className="text-sm">
+                            第 {currentPage} 页
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages || loading}
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+
+                <Toaster />
             </div>
         </div>
     )

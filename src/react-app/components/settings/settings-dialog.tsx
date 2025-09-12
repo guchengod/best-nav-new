@@ -23,7 +23,7 @@ export function SettingsDialog({
 }: SettingsDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[min(900px,90vw)]">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     {description && (
