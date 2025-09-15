@@ -42,9 +42,10 @@ export interface Website {
     url: string;
     icon: string;
     description: string;
-    tags: Tag[];
+    tags: TagRe[];
     menuId?: string;
     alive: boolean;
+    menu:{name:string}
 }
 
 // 标签类型
@@ -53,6 +54,11 @@ export interface Tag {
     name: string;
     color: string;
 }
+
+export interface TagRe{
+    tag: Tag
+}
+
 
 // 系统设置类型
 export interface SystemSettings {

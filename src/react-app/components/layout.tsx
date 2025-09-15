@@ -132,7 +132,9 @@ export default function Layout() {
                         <div id = "mainContent"  className="flex-grow overflow-auto">
                             <Header />
                             <ScrollArea>
-                                <MainContent />
+                               <div id="minContent" className="p-8">
+                                   <MainContent />
+                               </div>
                             </ScrollArea>
                             <ScrollToTop />
                         </div>

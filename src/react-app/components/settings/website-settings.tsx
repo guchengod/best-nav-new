@@ -120,7 +120,7 @@ export function WebsiteSettings() {
     }, [])
 
     const handleEdit = (website: Website) => {
-        const tagIds = website.tags.map(tagId => tagId.id)
+        const tagIds = website.tags.map(tagId => tagId.tag.id)
         const websiteTags = tags.filter(tag => tagIds.includes(tag.id))
         const menuItem = secondLevelMenus.find(menu => menu.id === website.menuId)
         
@@ -291,7 +291,9 @@ export function WebsiteSettings() {
                                     setSelectedTags(newTags)
                                     setNewWebsite({
                                         ...newWebsite,
-                                        tags: newTags
+                                        tags: newTags.map(tag => ({
+                                            tag: tag
+                                        }))
                                     })
                                 }}
                             />
@@ -497,10 +499,6 @@ export function WebsiteSettings() {
                             </TableRow>
                         ) : (
                             websites.map((website, index) => {
-                                const menuItem = secondLevelMenus.find(menu => menu.id === website.menuId)
-                                const parentMenu = menus.find(menu => menu.id === menuItem?.parentId)
-                                const websiteTags = tags.filter(tag => website.tags?.map((t: any) => t.id)?.includes(tag.id)) || []
-
                                 return (
                                     <TableRow key={website.id}>
                                         <TableCell className="text-center">
@@ -516,27 +514,22 @@ export function WebsiteSettings() {
                                             <div className="truncate" title={website.description}>{website.description}</div>
                                         </TableCell>
                                         <TableCell>
-                                            {menuItem && parentMenu && (
-                                                <div className="truncate" title={`${parentMenu.name} > ${menuItem.name}`}>
-                                                    {parentMenu.name} &gt; {menuItem.name}
-                                                </div>
-                                            )}
+                                            {website.menu.name}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1">
-                                                {websiteTags.map((tag) => (
+                                                {website.tags?.map((tag) => (
                                                     <Badge
-                                                        key={tag.id}
+                                                        key={tag.tag.name}
                                                         variant="outline"
                                                         className="truncate max-w-[80px]"
                                                         style={{
-                                                            backgroundColor: `${tag.color}20`,
-                                                            color: tag.color,
-                                                            borderColor: tag.color
+                                                            color: tag.tag.color,
+                                                            borderColor: tag.tag.color
                                                         }}
-                                                        title={tag.name}
+                                                        title={tag.tag.name}
                                                     >
-                                                        {tag.name}
+                                                        {tag.tag.name}
                                                     </Badge>
                                                 ))}
                                             </div>

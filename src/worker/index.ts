@@ -345,10 +345,20 @@ app.get('/api/websites', async (c) => {
         const [data, totalResult] = await Promise.all([
             db.query.websites.findMany({
                 with: {
-                    menu: true,
+                    menu: {
+                        columns: {
+                            name: true
+                        }
+                    },
                     tags: {
+                        columns: {},
                         with: {
-                            tag: true
+                            tag: {
+                                columns: {
+                                    name: true,
+                                    color: true,
+                                }
+                            }
                         }
                     }
                 },

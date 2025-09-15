@@ -63,6 +63,11 @@ const Content = () => {
     }, [menuId]);
 
     const loadWebsites = async (currentPage: number, isLoadingMore = false) => {
+
+        if ((isLoadingMore && isFetchingMore) || (!isLoadingMore && loading)) {
+            return; // 避免重复请求
+        }
+
         if (!isLoadingMore) {
             setLoading(true);
             setSites([]);
@@ -98,15 +103,21 @@ const Content = () => {
         }
     };
 
-    useEffect(() => {
-        setPage(1);
-        loadWebsites(1);
-    }, [menuId, searchQuery, pageSize]);
+    // useEffect(() => {
+    //     setPage(1);
+    //     loadWebsites(1);
+    // }, [searchQuery]);
+    //
+    // useEffect(() => {
+    //     if (page > 1) {
+    //         // loadWebsites(page, true);
+    //     }
+    // }, [page]);
 
     useEffect(() => {
-        if (page > 1) {
-            loadWebsites(page, true);
-        }
+        const isInitialLoad = page === 1;
+        loadWebsites(page, !isInitialLoad).then(
+        )
     }, [page]);
 
     const handleSearch = (query: string) => {
@@ -161,14 +172,14 @@ const Content = () => {
                                             <div className="flex flex-wrap gap-1 mt-auto">
                                                 {site.tags.slice(0, 3).map((tag) => (
                                                     <span 
-                                                        key={tag.id} 
+                                                        key={tag.tag.id}
                                                         className="text-[10px] px-1.5 py-0.5 rounded-full"
                                                         style={{
-                                                            backgroundColor: `${tag.color}20`,
-                                                            color: tag.color
+                                                            backgroundColor: `${tag.tag.color}20`,
+                                                            color: tag.tag.color
                                                         }}
                                                     >
-                                                        {tag.name}
+                                                        {tag.tag.name}
                                                     </span>
                                                 ))}
                                                 {site.tags.length > 3 && (
