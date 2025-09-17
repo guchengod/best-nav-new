@@ -1,4 +1,5 @@
-import type { APIResponse,MenuItemTree,MenuItem, Website, Tag, SystemSettings } from '../types/settings'
+import type {APIResponse, MenuItem, MenuItemTree, SystemSettings, Tag, Website} from '../types/settings'
+
 export type { MenuItem, Website, Tag, SystemSettings }
 
 // 开发环境使用相对路径，生产环境使用绝对路径
@@ -49,8 +50,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}, requires
             }
         }
 
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
         if (error instanceof APIError) {
             throw error;

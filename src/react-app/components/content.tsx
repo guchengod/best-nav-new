@@ -58,15 +58,11 @@ const Content = () => {
     const menuId = searchParams.get('menuId');
 
     useEffect(() => {
-        setIsChanging(true);
-        setTimeout(() => setIsChanging(false), 300);
+        // setIsChanging(true);
+        // setTimeout(() => setIsChanging(false), 300);
     }, [menuId]);
 
     const loadWebsites = async (currentPage: number, isLoadingMore = false) => {
-
-        if ((isLoadingMore && isFetchingMore) || (!isLoadingMore && loading)) {
-            return; // 避免重复请求
-        }
 
         if (!isLoadingMore) {
             setLoading(true);
@@ -84,7 +80,6 @@ const Content = () => {
 
             const response = await api.getWebsites(params.toString());
             const { data, pagination } = response;
-
             if (currentPage === 1) {
                 setSites(data);
             } else {
