@@ -333,28 +333,6 @@ export function SystemSettingsPanel() {
                         </SelectContent>
                     </Select>
                 </div>
-
-                {/* 侧边栏宽度 */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label>{t('system.sidebarWidth')}</Label>
-                            <p className="text-sm text-muted-foreground">
-                                {t('system.sidebarWidthDesc')} (需要刷新生效)
-                            </p>
-                        </div>
-                        <span className="text-sm font-medium">{settings.sidebarWidth}px</span>
-                    </div>
-                    <Slider
-                        value={[settings.sidebarWidth]}
-                        onValueChange={([value]) => setSettings({ ...settings, sidebarWidth: value })}
-                        min={200}
-                        max={400}
-                        step={10}
-                        disabled={isLoading}
-                        className="w-full"
-                    />
-                </div>
             </div>
 
             <div className="flex justify-end pt-4 border-t">
