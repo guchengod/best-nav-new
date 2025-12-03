@@ -1,90 +1,173 @@
-# React + Vite + Hono + Cloudflare Workers
+这是一份为您生成的详细 `README.md` 文件，基于您提供的代码库内容进行了整理。它涵盖了项目介绍、功能特性、技术栈、安装部署指南以及项目结构等信息。
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/vite-react-template)
+-----
 
-This template provides a minimal setup for building a React application with TypeScript and Vite, designed to run on Cloudflare Workers. It features hot module replacement, ESLint integration, and the flexibility of Workers deployments.
+# Best Nav (个人导航与知识管理系统)
 
-![React + TypeScript + Vite + Cloudflare Workers](https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/fc7b4b62-442b-4769-641b-ad4422d74300/public)
+Best Nav 是一个现代化的个人导航与知识管理平台，基于 React + Vite 构建前端，Hono + Cloudflare Workers 构建后端。它集成了网址导航、笔记记录、相册展示等功能，支持深色模式和多语言切换，旨在为您提供一个极简、高效的个人数据中心。
 
-<!-- dash-content-start -->
+## ✨ 主要特性
 
-🚀 Supercharge your web development with this powerful stack:
+  * **全栈无服务器架构**：利用 Cloudflare Workers、D1 Database 和 R2 Storage，实现低成本、高性能的全球部署。
+  * **动态导航管理**：
+      * 支持多级菜单（一级/二级）分类管理。
+      * 网址添加、编辑、删除，支持自动获取网站图标或上传自定义图标到 R2。
+      * 支持网址有效性自动检测（后台任务）。
+  * **丰富的内容模块**：
+      * **笔记 (Notes)**：集成 Lexical 富文本编辑器，支持 Markdown 快捷键、代码高亮。
+      * **图库 (Gallery)**：瀑布流图片展示，支持按时间和名称排序。
+      * **关于 & 友链**：独立的关于页面和友情链接管理模块。
+  * **强大的管理后台**：
+      * 可视化管理菜单、网站、标签、用户和系统设置。
+      * 系统级配置：主题切换（深色/浅色/跟随系统）、语言切换（中/英）、侧边栏宽度调整。
+  * **现代化 UI/UX**：
+      * 基于 Shadcn UI 和 Tailwind CSS 构建，界面美观。
+      * 响应式设计，适配移动端。
+      * 平滑的过渡动画和加载状态。
 
-- [**React**](https://react.dev/) - A modern UI library for building interactive interfaces
-- [**Vite**](https://vite.dev/) - Lightning-fast build tooling and development server
-- [**Hono**](https://hono.dev/) - Ultralight, modern backend framework
-- [**Cloudflare Workers**](https://developers.cloudflare.com/workers/) - Edge computing platform for global deployment
+## 🛠 技术栈
 
-### ✨ Key Features
+  * **前端**：
+      * React 19
+      * Vite
+      * Tailwind CSS
+      * Radix UI / Shadcn UI
+      * Framer Motion (动画)
+      * i18next (国际化)
+      * Lexical (富文本编辑器)
+  * **后端**：
+      * Cloudflare Workers (运行环境)
+      * Hono (Web 框架)
+      * Drizzle ORM (数据库 ORM)
+  * **存储**：
+      * Cloudflare D1 (SQLite 数据库)
+      * Cloudflare R2 (对象存储，用于存放图标)
 
-- 🔥 Hot Module Replacement (HMR) for rapid development
-- 📦 TypeScript support out of the box
-- 🛠️ ESLint configuration included
-- ⚡ Zero-config deployment to Cloudflare's global network
-- 🎯 API routes with Hono's elegant routing
-- 🔄 Full-stack development setup
-- 🔎 Built-in Observability to monitor your Worker
+## 🚀 快速开始
 
-Get started in minutes with local development or deploy directly via the Cloudflare dashboard. Perfect for building modern, performant web applications at the edge.
+### 前置要求
 
-<!-- dash-content-end -->
+  * Node.js (v18+)
+  * pnpm 或 npm
+  * Cloudflare 账号 (需要开通 Workers, D1 和 R2)
+  * Wrangler CLI (`npm install -g wrangler`)
 
-## Getting Started
-
-To start a new project with this template, run:
+### 1\. 克隆项目
 
 ```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/vite-react-template
-```
-
-A live deployment of this template is available at:
-[https://react-vite-template.templates.workers.dev](https://react-vite-template.templates.workers.dev)
-
-## Development
-
-Install dependencies:
-
-```bash
+git clone https://github.com/yourusername/best-nav.git
+cd best-nav
 npm install
 ```
 
-Start the development server with:
+### 2\. 配置 Cloudflare 资源
+
+在 Cloudflare 控制台或使用 Wrangler 创建必要的资源：
+
+**创建 D1 数据库：**
 
 ```bash
-npm run dev
+npx wrangler d1 create best_nav_db
 ```
 
-Your application will be available at [http://localhost:5173](http://localhost:5173).
+记录下输出中的 `database_id`，填入 `wrangler.json` 的 `database_id` 字段。
 
-## Production
+**创建 R2 存储桶：**
 
-Build your project for production:
+```bash
+npx wrangler r2 bucket create best-nav-bucket
+```
+
+确保 `wrangler.json` 中的 `bucket_name` 与创建的名称一致。
+
+### 3\. 初始化数据库
+
+项目包含一个 `init.sql` 文件，用于初始化表结构和默认数据（包含默认管理员账户）。
+
+**本地开发环境初始化：**
+
+```bash
+npm run localdb
+# 或者
+npx wrangler d1 execute best_nav_db --local --file init.sql
+```
+
+**生产环境初始化：**
+
+```bash
+npx wrangler d1 execute best_nav_db --remote --file init.sql
+```
+
+> **注意**：默认管理员账户为 `admin`，密码为 `admin123` (MD5加密存储)。请登录后尽快修改密码。
+
+### 4\. 环境变量配置
+
+在 `wrangler.json` 中配置必要的环境变量：
+
+```json
+"vars": {
+  "JWT_SECRET": "your-secret-key-change-this",
+  // 如果使用 GitHub 登录，需要配置以下两项
+  "GITHUB_CLIENT_ID": "",
+  "GITHUB_CLIENT_SECRET": ""
+}
+```
+
+对于本地开发，您可以创建一个 `.dev.vars` 文件来存储这些密钥。
+
+### 5\. 启动开发服务器
+
+启动前端和后端开发服务器：
+
+```bash
+# 启动 Vite 开发服务器 (前端)
+npm run dev
+
+# 启动 Wrangler 开发服务器 (后端)
+npm run wdev
+```
+
+通常，前端运行在 `http://localhost:5173`，后端 API 运行在 `http://localhost:8787`。前端代码中配置了代理或 API URL 指向后端。
+
+## 📦 部署
+
+构建前端并部署到 Cloudflare Workers：
 
 ```bash
 npm run build
+npm run deploy
 ```
 
-Preview your build locally:
+这将执行 TypeScript 编译、Vite 构建，并使用 Wrangler 将应用发布到 Cloudflare。
 
-```bash
-npm run preview
+## 📂 项目结构
+
+```
+best-nav/
+├── drizzle/                # Drizzle 数据库迁移文件
+├── init.sql                # 数据库初始化 SQL
+├── public/                 # 静态资源
+├── src/
+│   ├── react-app/          # 前端 React 应用
+│   │   ├── components/     # UI 组件 (Sidebar, Header, Settings等)
+│   │   ├── context/        # React Context (Navigation)
+│   │   ├── hooks/          # 自定义 Hooks
+│   │   ├── lib/            # 工具函数 (API client, utils)
+│   │   ├── locales/        # i18n 语言文件
+│   │   └── types/          # TypeScript 类型定义
+│   └── worker/             # 后端 Worker 代码
+│       ├── db/             # 数据库 Schema 和连接配置
+│       ├── index.ts        # Hono 应用入口和路由定义
+│       └── type.ts         # 后端类型定义
+├── package.json            # 项目依赖和脚本
+├── vite.config.ts          # Vite 配置
+└── wrangler.json           # Cloudflare Workers 配置
 ```
 
-Deploy your project to Cloudflare Workers:
+## 📝 许可证
 
-```bash
-npm run build && npm run deploy
-```
+MIT License
 
-Monitor your workers:
+-----
 
-```bash
-npx wrangler tail
-```
-
-## Additional Resources
-
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-- [Vite Documentation](https://vitejs.dev/guide/)
-- [React Documentation](https://reactjs.org/)
-- [Hono Documentation](https://hono.dev/)
+*由 [React + Vite + Hono + Cloudflare Workers 模板](https://www.google.com/search?q=https://github.com/cloudflare/templates/tree/main/vite-react-template) 驱动*
