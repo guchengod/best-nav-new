@@ -23,7 +23,7 @@ export interface Menu {
     name: string;
     icon: string | null; // 改为 string | null
     url: string | null;  // 改为 string | null
-    parentId: string;
+    parentId: string | null;
     sortOrder: number | null; // 改为 number | null
     createdAt: string | null; // 改为 string | null
     updatedAt: string | null; // 改为 string | null
@@ -58,7 +58,6 @@ export interface SystemSettings {
     theme: 'light' | 'dark' | 'system';
     language: 'zh' | 'en';
     sidebarWidth: number;
-    showTagColors: boolean;
     createdAt: string;
     updatedAt: string;
 }

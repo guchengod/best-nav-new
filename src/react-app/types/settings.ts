@@ -62,8 +62,8 @@ export interface TagRe{
 
 // 系统设置类型
 export interface SystemSettings {
+    id: string;
     theme: 'light' | 'dark' | 'system' | string;
     language: string;
     sidebarWidth: number;
-    showTagColors: boolean;
 }

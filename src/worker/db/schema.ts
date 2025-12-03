@@ -14,7 +14,7 @@ export const menus = sqliteTable('menus', {
   name: text('name').notNull(),
   icon: text('icon'),
   url: text('url'),
-  parentId: text('parent_id').notNull(),
+  parentId: text('parent_id'),
   sortOrder: integer('sort_order').default(0),
   createdAt: text('created_at').default(sql`datetime('now')`),
   updatedAt: text('updated_at').default(sql`datetime('now')`),
