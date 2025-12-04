@@ -103,7 +103,6 @@ export function TagSettings() {
 
     return (
         <div className="space-y-4">
-            <Toaster />
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">标签列表</h2>
                 <Button onClick={handleAddClick}>

@@ -274,7 +274,6 @@ export function MenuSettings() {
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
             />
-            <Toaster />
         </div>
     )
 }

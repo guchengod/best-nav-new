@@ -1435,34 +1435,21 @@ app.put('/api/websites/:id', authMiddleware, async (c) => {
     const { tags: newTags, ...websiteData } = body;
 
     try {
-        await db.transaction(async (tx) => {
-            await tx
-                .update(websites)
-                .set({
-                    ...websiteData,
-                    updatedAt: new Date().toISOString(),
-                })
-                .where(eq(websites.id, id));
+        // 修复: 移除 transaction
+        await db.update(websites).set({ ...websiteData, updatedAt: new Date().toISOString() }).where(eq(websites.id, id));
 
-            if (newTags) {
-                await tx.delete(websiteTags).where(eq(websiteTags.websiteId, id));
-                if (newTags.length) {
-                    // 注意：这里假设 update 传递的 tag 已经包含了 id，如果是新 tag 需要额外处理逻辑
-                    // 简单起见，这里假设前端传来的都是已有 tag 或已处理好的结构
-                    for(const tag of newTags) {
-                        // @ts-ignore
-                        const tagId = tag.id || tag.tag?.id; // 兼容不同结构
-                        if(tagId) {
-                            await tx.insert(websiteTags).values({
-                                websiteId: id,
-                                tagId: tagId,
-                                createdAt: new Date().toISOString(),
-                            });
-                        }
+        if (newTags) {
+            await db.delete(websiteTags).where(eq(websiteTags.websiteId, id));
+            if (newTags.length) {
+                for(const tag of newTags) {
+                    // @ts-ignore
+                    const tagId = tag.id || tag.tag?.id;
+                    if(tagId) {
+                        await db.insert(websiteTags).values({ websiteId: id, tagId: tagId, createdAt: new Date().toISOString() });
                     }
                 }
             }
-        });
+        }
         return c.json({ data: { id } });
     } catch(error: any) {
         console.error('Update website error:', error);

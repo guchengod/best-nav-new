@@ -913,8 +913,6 @@ export function WebsiteSettings() {
                         </Button>
                     </div>
                 </div>
-
-                <Toaster />
             </div>
         </div>
     )
