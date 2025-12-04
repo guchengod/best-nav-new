@@ -203,7 +203,7 @@
 
 import type {
     APIResponse,
-    GalleryCategory, GalleryImage,
+    GalleryCategory, GalleryImage, GallerySettings,
     MenuItem,
     MenuItemTree,
     SystemSettings,
@@ -453,6 +453,13 @@ export const api = {
     },
     async deleteGalleryImage(id: string): Promise<void> {
         return fetchAPI(`/api/gallery/images/${id}`, { method: 'DELETE' }, true);
+    },
+
+    async getGallerySettings(): Promise<APIResponse<GallerySettings>> {
+        return fetchAPI('/api/gallery/settings');
+    },
+    async updateGallerySettings(settings: Partial<GallerySettings>): Promise<void> {
+        return fetchAPI('/api/gallery/settings', { method: 'PUT', body: JSON.stringify(settings) }, true);
     },
 };
 

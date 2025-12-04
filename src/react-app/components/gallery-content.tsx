@@ -438,10 +438,16 @@ export function GalleryContent({ className }: GalleryContentProps) {
         document.body.removeChild(link);
     }
 
-    const handleShare = () => {
-        if (!currentImage) return;
-        navigator.clipboard.writeText(currentImage.url);
-        toast({ title: "链接已复制" });
+    const handleShare = (e?: React.MouseEvent, url?: string) => {
+        e?.stopPropagation();
+        const targetUrl = url || currentImage?.url;
+        if (!targetUrl) return;
+
+        // 需求：分享的时候把当前访问的网址加上
+        const shareText = `${window.location.href}${targetUrl}`;
+
+        navigator.clipboard.writeText(shareText);
+        toast({ title: "链接已复制", description: "包含图片地址和当前页面链接" });
     }
 
     return (

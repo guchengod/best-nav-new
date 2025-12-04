@@ -177,7 +177,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { SettingsDialog } from './settings/settings-dialog'
 import { GalleryImageSettings } from './settings/gallery-image-settings'
 import { GalleryCategorySettings } from './settings/gallery-category-settings'
-import { SystemSettingsPanel } from './settings/system-settings'
+import {GallerySystemSettings} from "@/components/settings/gallery-system-settings.tsx";
 
 interface GalleryItem {
     id: string
@@ -332,7 +332,7 @@ export function GallerySidebar({ className }: { className?: string }) {
                         onOpenChange={(open) => !open && setActiveDialog(null)}
                         title="系统设置"
                     >
-                        <SystemSettingsPanel />
+                        <GallerySystemSettings />
                     </SettingsDialog>
                 </SidebarFooter>
             )}

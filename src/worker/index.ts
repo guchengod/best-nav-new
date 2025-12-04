@@ -855,7 +855,17 @@ import * as jose from 'jose';
 import {and, asc, count, desc, eq, inArray, like, or, sql} from 'drizzle-orm';
 import {createDb,} from './db';
 import {Menu, SystemSettings, Tag, Website} from './type.ts';
-import { menus, systemSettings, tags, users, websites, websiteTags, galleryCategories, galleryImages } from "./db/schema.ts";
+import {
+    menus,
+    systemSettings,
+    tags,
+    users,
+    websites,
+    websiteTags,
+    galleryCategories,
+    galleryImages,
+    gallerySettings
+} from "./db/schema.ts";
 
 // This ensures c.env.DB is correctly typed
 type Bindings = {
@@ -1964,6 +1974,121 @@ app.delete('/api/gallery/images/:id', authMiddleware, async (c) => {
     return c.json({ data: { success: true } });
 });
 
+app.get('/api/gallery/settings', authMiddleware, async (c) => {
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
 
+    try {
+        const result = await db.select().from(gallerySettings).where(eq(gallerySettings.userId, userId)).limit(1);
+        // 如果没有设置，返回默认空对象或初始值
+        const settings = result.length > 0 ? result[0] : { trustedDomains: '' };
+        return c.json({ data: settings });
+    } catch (error) {
+        console.error("Fetch gallery settings error:", error);
+        return c.json({ error: 'Failed to fetch gallery settings' }, 500);
+    }
+});
+
+// Update Gallery Settings (Upsert)
+app.put('/api/gallery/settings', authMiddleware, async (c) => {
+    const body = await c.req.json();
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+
+    try {
+        // 检查是否已存在
+        const existing = await db.select().from(gallerySettings).where(eq(gallerySettings.userId, userId)).limit(1);
+
+        if (existing.length > 0) {
+            await db.update(gallerySettings)
+                .set({
+                    trustedDomains: body.trustedDomains,
+                    updatedAt: new Date().toISOString()
+                })
+                .where(eq(gallerySettings.userId, userId));
+        } else {
+            await db.insert(gallerySettings).values({
+                id: crypto.randomUUID(),
+                userId: userId,
+                trustedDomains: body.trustedDomains,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+            });
+        }
+        return c.json({ success: true });
+    } catch (error) {
+        console.error("Update gallery settings error:", error);
+        return c.json({ error: 'Failed to update gallery settings' }, 500);
+    }
+});
+
+// NEW: Dedicated Share Endpoint (With Trusted Domain Check)
+app.get('/api/share/img/:key{.*}', async (c) => {
+    const key = c.req.param('key');
+    const db = createDb(c.env.DB);
+    // 构造对应的内部 URL 来查找数据库记录
+    const internalUrl = `/api/rfile/${key}`;
+
+    try {
+        // 1. 查找图片归属
+        const imageRecord = await db.select()
+            .from(galleryImages)
+            .where(eq(galleryImages.url, internalUrl))
+            .get();
+
+        if (imageRecord) {
+            // 2. 获取该用户的设置
+            const settings = await db.select()
+                .from(gallerySettings)
+                .where(eq(gallerySettings.userId, imageRecord.userId))
+                .get();
+
+            // 3. 检查 Referer
+            if (settings && settings.trustedDomains) {
+                const referer = c.req.header('Referer');
+
+                // 只有当有 Referer 时才检查（浏览器直接访问/下载通常没有 Referer 或允许）
+                // 如果需要禁止直接访问，可以在这里处理
+                if (referer) {
+                    try {
+                        const refererUrl = new URL(referer);
+                        const refererDomain = refererUrl.hostname;
+
+                        const allowedDomains = settings.trustedDomains
+                            .split(/[\n,]/)
+                            .map(d => d.trim())
+                            .filter(Boolean);
+
+                        if (allowedDomains.length > 0) {
+                            const isAllowed = allowedDomains.some(d =>
+                                refererDomain === d || refererDomain.endsWith(`.${d}`)
+                            );
+
+                            if (!isAllowed) {
+                                return c.text('Access Denied: Domain not trusted', 403);
+                            }
+                        }
+                    } catch (e) {
+                        // Referer 格式错误，安全起见可以拦截或忽略
+                    }
+                }
+            }
+        }
+
+        // 4. 返回文件
+        const object = await c.env.BUCKET.get(key);
+        if (!object) return c.notFound();
+
+        const headers = new Headers();
+        object.writeHttpMetadata(headers);
+        headers.set('etag', object.httpEtag);
+        headers.set('Cache-Control', 'public, max-age=31536000');
+
+        return new Response(object.body, { headers });
+    } catch (error) {
+        console.error('Share fetch error:', error);
+        return c.notFound();
+    }
+});
 
 export default app;

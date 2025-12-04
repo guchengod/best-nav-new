@@ -90,3 +90,11 @@ export interface GalleryImage {
     width?: number;
     height?: number;
 }
+
+export interface GallerySettings {
+    id?: string;
+    userId?: string;
+    trustedDomains: string;
+    createdAt?: string;
+    updatedAt?: string;
+}

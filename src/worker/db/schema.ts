@@ -132,6 +132,14 @@ export const galleryImages = sqliteTable('gallery_images', {
     updatedAt: text('updated_at').default(sql`datetime('now')`),
 });
 
+export const gallerySettings = sqliteTable('gallery_settings', {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    trustedDomains: text('trusted_domains'), // 分享图片的信任网址，多个用逗号或换行分隔
+    createdAt: text('created_at').default(sql`datetime('now')`),
+    updatedAt: text('updated_at').default(sql`datetime('now')`),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
     categories: many(galleryCategories),
     images: many(galleryImages),
@@ -154,4 +162,11 @@ export const galleryImagesRelations = relations(galleryImages, ({ one }) => ({
         fields: [galleryImages.categoryId],
         references: [galleryCategories.id]
     })
+}));
+
+export const gallerySettingsRelations = relations(gallerySettings, ({ one }) => ({
+    user: one(users, {
+        fields: [gallerySettings.userId],
+        references: [users.id]
+    }),
 }));
