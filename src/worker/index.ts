@@ -1217,6 +1217,7 @@ app.get('/api/websites', async (c) => {
                         with: {
                             tag: {
                                 columns: {
+                                    id: true,
                                     name: true,
                                     color: true,
                                 }
@@ -1465,7 +1466,7 @@ app.put('/api/websites/:id', authMiddleware, async (c) => {
         return c.json({ data: { id } });
     } catch(error: any) {
         console.error('Update website error:', error);
-        return c.json({ error: 'Failed to update website' }, 500);
+        return c.json({ error: 'Failed to update website'+error }, 500);
     }
 });
 

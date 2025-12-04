@@ -1,4 +1,4 @@
-// import { useEffect, useRef, useState } from 'react'
+// import { useEffect, useState } from 'react'
 // import { Button } from "@/components/ui/button"
 // import { Input } from "@/components/ui/input"
 // import { Label } from "@/components/ui/label"
@@ -20,8 +20,8 @@
 // } from "@/components/ui/table"
 //
 // import { Badge } from "@/components/ui/badge"
-// import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Upload, Globe, Loader2 } from "lucide-react"
-// import { Website, MenuItem, MenuItemTree, Tag } from '@/types/settings'
+// import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+// import { Website, MenuItem, Tag } from '@/types/settings'
 // import { api } from '@/lib/api'
 // import { toast } from "@/hooks/use-toast"
 // import { Toaster } from "@/components/ui/toaster"
@@ -34,9 +34,8 @@
 //     const [isEditing, setIsEditing] = useState<string | null>(null)
 //     const [websites, setWebsites] = useState<Website[]>([])
 //     const [newWebsite, setNewWebsite] = useState<Partial<Website>>({})
-//     const [menuTree, setMenuTree] = useState<MenuItemTree[]>([])
-//     const [parentMenus, setParentMenus] = useState<MenuItemTree[]>([])
-//     const [childMenus, setChildMenus] = useState<MenuItemTree[]>([])
+//     const [menus, setMenus] = useState<MenuItem[]>([])
+//     const [secondLevelMenus, setSecondLevelMenus] = useState<MenuItem[]>([])
 //     const [selectedParentMenu, setSelectedParentMenu] = useState<string>('')
 //     const [currentPage, setCurrentPage] = useState(1)
 //     const [totalPages, setTotalPages] = useState(1)
@@ -44,9 +43,6 @@
 //     const [loading, setLoading] = useState(false)
 //     const [tags, setTags] = useState<Tag[]>([])
 //     const [selectedTags, setSelectedTags] = useState<Tag[]>([])
-//     const [uploading, setUploading] = useState(false)
-//     const [fetchingIcon, setFetchingIcon] = useState(false)
-//     const fileInputRef = useRef<HTMLInputElement>(null)
 //
 //     // 加载标签数据
 //     const loadTags = async () => {
@@ -68,7 +64,6 @@
 //         setNewWebsite({})
 //         setSelectedTags([])
 //         setSelectedParentMenu('')
-//         setChildMenus([])
 //         setIsAdding(false)
 //         setIsEditing(null)
 //     }
@@ -99,14 +94,13 @@
 //         loadWebsites(newPage)
 //     }
 //
-//     // 加载菜单树
 //     const loadMenus = async () => {
 //         try {
-//             const tree = await api.menus()
-//             setMenuTree(tree)
-//             // 筛选出所有一级菜单
-//             const parents = tree.filter(menu => !menu.parentId || menu.parentId === '0')
-//             setParentMenus(parents)
+//             const data = await api.getMenus()
+//             const parentMenus = data.data.filter(menu => !menu.parentId)
+//             setMenus(parentMenus)
+//             const childMenus = data.data.filter(menu => menu.parentId)
+//             setSecondLevelMenus(childMenus)
 //         } catch (error) {
 //             toast({
 //                 variant: "destructive",
@@ -116,24 +110,6 @@
 //             console.log(error)
 //         }
 //     }
-//
-//     // 当一级菜单选择改变时，更新二级菜单列表
-//     useEffect(() => {
-//         if (selectedParentMenu) {
-//             const parent = menuTree.find(m => m.id === selectedParentMenu)
-//             setChildMenus(parent?.children || [])
-//             // 如果切换了一级菜单，清空已选的二级菜单（除非是编辑模式初始化时）
-//             if (newWebsite.menuId && !parent?.children?.find(c => c.id === newWebsite.menuId)) {
-//                 setNewWebsite(prev => ({ ...prev, menuId: '' }))
-//             }
-//         } else {
-//             setChildMenus([])
-//         }
-//     }, [selectedParentMenu, menuTree])
-//
-//     useEffect(() => {
-//         loadWebsites(1) // 搜索时重置页码
-//     }, [searchTerm])
 //
 //     useEffect(() => {
 //         const loadData = async () => {
@@ -147,24 +123,18 @@
 //     }, [])
 //
 //     const handleEdit = (website: Website) => {
+//         // 修复：此时 tagId.tag.id 应该存在，因为后端已经添加了 id 查询
 //         const tagIds = website.tags?.map(tagRef => tagRef.tag.id) || []
 //         const websiteTags = tags.filter(tag => tagIds.includes(tag.id))
+//         const menuItem = secondLevelMenus.find(menu => menu.id === website.menuId)
 //
 //         setNewWebsite(website)
 //         setIsEditing(website.id)
 //         setIsAdding(true)
 //         setSelectedTags(websiteTags)
 //
-//         // 查找该网站所属的二级菜单的父级菜单
-//         // 1. 遍历所有一级菜单
-//         for (const parent of menuTree) {
-//             // 2. 检查该父菜单的子菜单中是否包含当前网站的 menuId
-//             const found = parent.children?.find(child => child.id === website.menuId)
-//             if (found) {
-//                 setSelectedParentMenu(parent.id)
-//                 // useEffect 会自动更新 childMenus
-//                 break
-//             }
+//         if (menuItem?.parentId) {
+//             setSelectedParentMenu(menuItem.parentId)
 //         }
 //     }
 //
@@ -173,8 +143,6 @@
 //     }
 //
 //     const handleDelete = async (id: string) => {
-//         if (!confirm("确定要删除这个网站吗？")) return
-//
 //         try {
 //             await api.deleteWebsite(id)
 //             toast({
@@ -203,6 +171,7 @@
 //                 return
 //             }
 //
+//             // 修复：tags 传递完整的对象，而不仅仅是 id
 //             const websiteData = {
 //                 ...newWebsite,
 //                 name: newWebsite.name.trim(),
@@ -236,62 +205,6 @@
 //         }
 //     }
 //
-//     // 处理文件上传
-//     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-//         const file = event.target.files?.[0]
-//         if (!file) return
-//
-//         setUploading(true)
-//         try {
-//             const { url } = await api.uploadFile(file)
-//             setNewWebsite(prev => ({ ...prev, icon: url }))
-//             toast({
-//                 title: "上传成功",
-//                 description: "图标已上传",
-//             })
-//         } catch (error) {
-//             toast({
-//                 variant: "destructive",
-//                 title: "上传失败",
-//                 description: "无法上传图标，请稍后重试",
-//             })
-//         } finally {
-//             setUploading(false)
-//             // 清空 input，允许重复上传同一文件
-//             if (fileInputRef.current) fileInputRef.current.value = ''
-//         }
-//     }
-//
-//     // 处理自动获取图标
-//     const handleFetchIcon = async () => {
-//         if (!newWebsite.url) {
-//             toast({
-//                 variant: "destructive",
-//                 title: "错误",
-//                 description: "请先填写网站链接",
-//             })
-//             return
-//         }
-//
-//         setFetchingIcon(true)
-//         try {
-//             const { url } = await api.fetchIcon(newWebsite.url)
-//             setNewWebsite(prev => ({ ...prev, icon: url }))
-//             toast({
-//                 title: "获取成功",
-//                 description: "图标已自动获取",
-//             })
-//         } catch (error) {
-//             toast({
-//                 variant: "destructive",
-//                 title: "获取失败",
-//                 description: "无法自动获取图标，请手动上传",
-//             })
-//         } finally {
-//             setFetchingIcon(false)
-//         }
-//     }
-//
 //     return (
 //         <div className="space-y-4">
 //             <Dialog open={isAdding} onOpenChange={(open) => {
@@ -315,56 +228,16 @@
 //                             <Input
 //                                 value={newWebsite.url || ''}
 //                                 onChange={(e) => setNewWebsite({ ...newWebsite, url: e.target.value })}
-//                                 placeholder="输入网站链接 (例如 https://example.com)"
+//                                 placeholder="输入网站链接"
 //                             />
 //                         </div>
 //                         <div className="space-y-2">
-//                             <Label>网站图标</Label>
-//                             <div className="flex gap-2 items-center">
-//                                 <div className="flex-1">
-//                                     <Input
-//                                         value={newWebsite.icon || ''}
-//                                         onChange={(e) => setNewWebsite({ ...newWebsite, icon: e.target.value })}
-//                                         placeholder="输入图标链接或使用右侧按钮"
-//                                     />
-//                                 </div>
-//                                 <input
-//                                     type="file"
-//                                     ref={fileInputRef}
-//                                     className="hidden"
-//                                     accept="image/*"
-//                                     onChange={handleFileUpload}
-//                                 />
-//                                 <Button
-//                                     variant="outline"
-//                                     size="icon"
-//                                     onClick={() => fileInputRef.current?.click()}
-//                                     disabled={uploading}
-//                                     title="上传图标"
-//                                 >
-//                                     {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-//                                 </Button>
-//                                 <Button
-//                                     variant="outline"
-//                                     size="icon"
-//                                     onClick={handleFetchIcon}
-//                                     disabled={fetchingIcon}
-//                                     title="自动获取图标"
-//                                 >
-//                                     {fetchingIcon ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
-//                                 </Button>
-//                             </div>
-//                             {newWebsite.icon && (
-//                                 <div className="mt-2 flex items-center gap-2">
-//                                     <span className="text-sm text-muted-foreground">预览：</span>
-//                                     <img
-//                                         src={newWebsite.icon}
-//                                         alt="Icon Preview"
-//                                         className="h-8 w-8 object-contain border rounded p-1"
-//                                         onError={(e) => (e.target as HTMLImageElement).src = '/favicon.ico'}
-//                                     />
-//                                 </div>
-//                             )}
+//                             <Label>图标链接</Label>
+//                             <Input
+//                                 value={newWebsite.icon || ''}
+//                                 onChange={(e) => setNewWebsite({ ...newWebsite, icon: e.target.value })}
+//                                 placeholder="输入图标链接"
+//                             />
 //                         </div>
 //                         <div className="space-y-2">
 //                             <Label>网站描述</Label>
@@ -385,7 +258,7 @@
 //                                         <SelectValue placeholder="选择一级菜单" />
 //                                     </SelectTrigger>
 //                                     <SelectContent>
-//                                         {parentMenus.map((menu) => (
+//                                         {menus.map((menu) => (
 //                                             <SelectItem key={menu.id} value={menu.id}>
 //                                                 {menu.name}
 //                                             </SelectItem>
@@ -404,7 +277,7 @@
 //                                         <SelectValue placeholder="选择二级菜单" />
 //                                     </SelectTrigger>
 //                                     <SelectContent>
-//                                         {childMenus.map((menu) => (
+//                                         {secondLevelMenus.filter(menu => menu.parentId === selectedParentMenu).map((menu) => (
 //                                             <SelectItem key={menu.id} value={menu.id}>
 //                                                 {menu.name}
 //                                             </SelectItem>
@@ -494,7 +367,7 @@
 //                                             <div className="truncate" title={website.description}>{website.description}</div>
 //                                         </TableCell>
 //                                         <TableCell>
-//                                             {website.menu?.name || '-'}
+//                                             {website.menu?.name}
 //                                         </TableCell>
 //                                         <TableCell>
 //                                             <div className="flex flex-wrap gap-1">
@@ -572,7 +445,8 @@
 //         </div>
 //     )
 // }
-import { useEffect, useRef, useState } from 'react'
+
+import { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -594,8 +468,8 @@ import {
 } from "@/components/ui/table"
 
 import { Badge } from "@/components/ui/badge"
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Upload, Globe, Loader2 } from "lucide-react"
-import { Website, MenuItemTree, Tag } from '@/types/settings'
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from "lucide-react"
+import { Website, MenuItem, Tag, MenuItemTree } from '@/types/settings'
 import { api } from '@/lib/api'
 import { toast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -608,9 +482,8 @@ export function WebsiteSettings() {
     const [isEditing, setIsEditing] = useState<string | null>(null)
     const [websites, setWebsites] = useState<Website[]>([])
     const [newWebsite, setNewWebsite] = useState<Partial<Website>>({})
-    const [menuTree, setMenuTree] = useState<MenuItemTree[]>([])
-    const [parentMenus, setParentMenus] = useState<MenuItemTree[]>([])
-    const [childMenus, setChildMenus] = useState<MenuItemTree[]>([])
+    const [menus, setMenus] = useState<MenuItem[]>([])
+    const [secondLevelMenus, setSecondLevelMenus] = useState<MenuItem[]>([])
     const [selectedParentMenu, setSelectedParentMenu] = useState<string>('')
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
@@ -618,9 +491,6 @@ export function WebsiteSettings() {
     const [loading, setLoading] = useState(false)
     const [tags, setTags] = useState<Tag[]>([])
     const [selectedTags, setSelectedTags] = useState<Tag[]>([])
-    const [uploading, setUploading] = useState(false)
-    const [fetchingIcon, setFetchingIcon] = useState(false)
-    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // 加载标签数据
     const loadTags = async () => {
@@ -642,7 +512,6 @@ export function WebsiteSettings() {
         setNewWebsite({})
         setSelectedTags([])
         setSelectedParentMenu('')
-        setChildMenus([])
         setIsAdding(false)
         setIsEditing(null)
     }
@@ -673,14 +542,32 @@ export function WebsiteSettings() {
         loadWebsites(newPage)
     }
 
-    // 加载菜单树 - 修复：获取完整树结构
+    // 修复：使用 api.menus() 获取全量树形结构，避免分页导致菜单缺失
     const loadMenus = async () => {
         try {
             const tree = await api.menus()
-            setMenuTree(tree)
-            // 筛选出所有一级菜单 (parentId 为 null 或 "0")
-            const parents = tree.filter(menu => !menu.parentId || menu.parentId === '0')
-            setParentMenus(parents)
+            // 提取一级菜单
+            const parents = tree.map(node => ({
+                id: node.id,
+                name: node.name,
+                parentId: node.parentId
+            } as MenuItem));
+            setMenus(parents)
+
+            // 提取二级菜单
+            const children: MenuItem[] = [];
+            tree.forEach(node => {
+                if (node.children) {
+                    node.children.forEach(child => {
+                        children.push({
+                            id: child.id,
+                            name: child.name,
+                            parentId: child.parentId
+                        } as MenuItem)
+                    })
+                }
+            })
+            setSecondLevelMenus(children)
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -690,30 +577,6 @@ export function WebsiteSettings() {
             console.log(error)
         }
     }
-
-    // 当一级菜单选择改变时，更新二级菜单列表
-    useEffect(() => {
-        if (selectedParentMenu) {
-            // 在完整树中查找选中的一级菜单
-            const parent = menuTree.find(m => m.id === selectedParentMenu)
-            // 如果找到，设置其子菜单，否则置空
-            setChildMenus(parent?.children || [])
-
-            // 如果切换了一级菜单，且当前的 menuId 不在新的一级菜单的子菜单中，清空 menuId
-            if (newWebsite.menuId) {
-                const isChild = parent?.children?.some(c => c.id === newWebsite.menuId);
-                if (!isChild) {
-                    setNewWebsite(prev => ({ ...prev, menuId: '' }))
-                }
-            }
-        } else {
-            setChildMenus([])
-        }
-    }, [selectedParentMenu, menuTree])
-
-    useEffect(() => {
-        loadWebsites(1) // 搜索时重置页码
-    }, [searchTerm])
 
     useEffect(() => {
         const loadData = async () => {
@@ -727,24 +590,25 @@ export function WebsiteSettings() {
     }, [])
 
     const handleEdit = (website: Website) => {
+        // 修复：后端已返回 ID，可以直接匹配
         const tagIds = website.tags?.map(tagRef => tagRef.tag.id) || []
         const websiteTags = tags.filter(tag => tagIds.includes(tag.id))
+
+        // 查找当前网站所属的二级菜单
+        const menuItem = secondLevelMenus.find(menu => menu.id === website.menuId)
 
         setNewWebsite(website)
         setIsEditing(website.id)
         setIsAdding(true)
         setSelectedTags(websiteTags)
 
-        // 查找该网站所属的二级菜单的父级菜单
-        // 遍历所有一级菜单（roots）
-        for (const root of parentMenus) {
-            // 检查该 root 的 children 中是否包含 website.menuId
-            const found = root.children?.find(child => child.id === website.menuId)
-            if (found) {
-                setSelectedParentMenu(root.id)
-                // useEffect 会自动更新 childMenus
-                break
-            }
+        // 自动设置一级菜单回显
+        if (menuItem?.parentId) {
+            setSelectedParentMenu(menuItem.parentId)
+        } else {
+            // 如果没找到（可能是直接挂在一级菜单下，虽然目前的UI逻辑似乎不支持，但防止出错）
+            // 或者数据不一致的情况
+            setSelectedParentMenu('')
         }
     }
 
@@ -753,8 +617,6 @@ export function WebsiteSettings() {
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("确定要删除这个网站吗？")) return
-
         try {
             await api.deleteWebsite(id)
             toast({
@@ -783,6 +645,7 @@ export function WebsiteSettings() {
                 return
             }
 
+            // 修复：tags 传递完整的对象数组 {id, name}，不仅仅是 ID
             const websiteData = {
                 ...newWebsite,
                 name: newWebsite.name.trim(),
@@ -806,70 +669,13 @@ export function WebsiteSettings() {
             }
             resetForm()
             loadWebsites()
-        } catch (error: any) {
-            // 处理后端返回的错误信息
-            const errorMessage = error.message || "操作失败";
+        } catch (error) {
             toast({
                 variant: "destructive",
                 title: "操作失败",
-                description: errorMessage,
+                description: "保存失败，请稍后重试",
             })
             console.log(error)
-        }
-    }
-
-    // 处理文件上传
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (!file) return
-
-        setUploading(true)
-        try {
-            const { url } = await api.uploadFile(file)
-            setNewWebsite(prev => ({ ...prev, icon: url }))
-            toast({
-                title: "上传成功",
-                description: "图标已上传",
-            })
-        } catch (error) {
-            toast({
-                variant: "destructive",
-                title: "上传失败",
-                description: "无法上传图标，请稍后重试",
-            })
-        } finally {
-            setUploading(false)
-            if (fileInputRef.current) fileInputRef.current.value = ''
-        }
-    }
-
-    // 处理自动获取图标
-    const handleFetchIcon = async () => {
-        if (!newWebsite.url) {
-            toast({
-                variant: "destructive",
-                title: "错误",
-                description: "请先填写网站链接",
-            })
-            return
-        }
-
-        setFetchingIcon(true)
-        try {
-            const { url } = await api.fetchIcon(newWebsite.url)
-            setNewWebsite(prev => ({ ...prev, icon: url }))
-            toast({
-                title: "获取成功",
-                description: "图标已自动获取",
-            })
-        } catch (error) {
-            toast({
-                variant: "destructive",
-                title: "获取失败",
-                description: "无法自动获取图标，请手动上传",
-            })
-        } finally {
-            setFetchingIcon(false)
         }
     }
 
@@ -896,56 +702,16 @@ export function WebsiteSettings() {
                             <Input
                                 value={newWebsite.url || ''}
                                 onChange={(e) => setNewWebsite({ ...newWebsite, url: e.target.value })}
-                                placeholder="输入网站链接 (例如 https://example.com)"
+                                placeholder="输入网站链接"
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>网站图标</Label>
-                            <div className="flex gap-2 items-center">
-                                <div className="flex-1">
-                                    <Input
-                                        value={newWebsite.icon || ''}
-                                        onChange={(e) => setNewWebsite({ ...newWebsite, icon: e.target.value })}
-                                        placeholder="输入图标链接或使用右侧按钮"
-                                    />
-                                </div>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleFileUpload}
-                                />
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={uploading}
-                                    title="上传图标"
-                                >
-                                    {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={handleFetchIcon}
-                                    disabled={fetchingIcon}
-                                    title="自动获取图标"
-                                >
-                                    {fetchingIcon ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
-                                </Button>
-                            </div>
-                            {newWebsite.icon && (
-                                <div className="mt-2 flex items-center gap-2">
-                                    <span className="text-sm text-muted-foreground">预览：</span>
-                                    <img
-                                        src={newWebsite.icon}
-                                        alt="Icon Preview"
-                                        className="h-8 w-8 object-contain border rounded p-1"
-                                        onError={(e) => (e.target as HTMLImageElement).src = '/favicon.ico'}
-                                    />
-                                </div>
-                            )}
+                            <Label>图标链接</Label>
+                            <Input
+                                value={newWebsite.icon || ''}
+                                onChange={(e) => setNewWebsite({ ...newWebsite, icon: e.target.value })}
+                                placeholder="输入图标链接"
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label>网站描述</Label>
@@ -966,7 +732,7 @@ export function WebsiteSettings() {
                                         <SelectValue placeholder="选择一级菜单" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {parentMenus.map((menu) => (
+                                        {menus.map((menu) => (
                                             <SelectItem key={menu.id} value={menu.id}>
                                                 {menu.name}
                                             </SelectItem>
@@ -979,13 +745,13 @@ export function WebsiteSettings() {
                                 <Select
                                     value={newWebsite.menuId || ''}
                                     onValueChange={(value) => setNewWebsite({ ...newWebsite, menuId: value })}
-                                    disabled={!selectedParentMenu || childMenus.length === 0}
+                                    disabled={!selectedParentMenu}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="选择二级菜单" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {childMenus.map((menu) => (
+                                        {secondLevelMenus.filter(menu => menu.parentId === selectedParentMenu).map((menu) => (
                                             <SelectItem key={menu.id} value={menu.id}>
                                                 {menu.name}
                                             </SelectItem>
@@ -1075,7 +841,7 @@ export function WebsiteSettings() {
                                             <div className="truncate" title={website.description}>{website.description}</div>
                                         </TableCell>
                                         <TableCell>
-                                            {website.menu?.name || '-'}
+                                            {website.menu?.name}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1">
