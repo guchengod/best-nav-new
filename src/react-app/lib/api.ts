@@ -201,7 +201,15 @@
 // export default api;
 
 
-import type {APIResponse, MenuItem, MenuItemTree, SystemSettings, Tag, Website} from '../types/settings'
+import type {
+    APIResponse,
+    GalleryCategory, GalleryImage,
+    MenuItem,
+    MenuItemTree,
+    SystemSettings,
+    Tag,
+    Website
+} from '../types/settings'
 
 export type { MenuItem, Website, Tag, SystemSettings }
 
@@ -249,7 +257,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}, requires
 
         if (!response.ok) {
             if(response.status === 401){
-                localStorage.removeItem('auth_token');
+                // localStorage.removeItem('auth_token');
             }else{
                 const errorData = await response.json().catch(() => null);
                 throw new APIError(errorData?.error || `HTTP error! status: ${response.status}`);
@@ -418,6 +426,33 @@ export const api = {
         return fetchAPI(`/api/users/${id}`, {
             method: 'DELETE',
         }, true);
+    },
+
+    // --- 图库 API ---
+    async getGalleryCategories(): Promise<APIResponse<GalleryCategory[]>> {
+        return fetchAPI('/api/gallery/categories',{},true);
+    },
+    async createGalleryCategory(data: Partial<GalleryCategory>): Promise<void> {
+        return fetchAPI('/api/gallery/categories', { method: 'POST', body: JSON.stringify(data) }, true);
+    },
+    async updateGalleryCategory(id: string, data: Partial<GalleryCategory>): Promise<void> {
+        return fetchAPI(`/api/gallery/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }, true);
+    },
+    async deleteGalleryCategory(id: string): Promise<void> {
+        return fetchAPI(`/api/gallery/categories/${id}`, { method: 'DELETE' }, true);
+    },
+
+    async getGalleryImages(params: string = ''): Promise<APIResponse<GalleryImage[]>> {
+        return fetchAPI(`/api/gallery/images?${params}`, {} ,true);
+    },
+    async createGalleryImage(data: Partial<GalleryImage>): Promise<void> {
+        return fetchAPI('/api/gallery/images', { method: 'POST', body: JSON.stringify(data) }, true);
+    },
+    async updateGalleryImage(id: string, data: Partial<GalleryImage>): Promise<void> {
+        return fetchAPI(`/api/gallery/images/${id}`, { method: 'PUT', body: JSON.stringify(data) }, true);
+    },
+    async deleteGalleryImage(id: string): Promise<void> {
+        return fetchAPI(`/api/gallery/images/${id}`, { method: 'DELETE' }, true);
     },
 };
 

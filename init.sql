@@ -174,3 +174,31 @@ INSERT INTO website_tags (website_id, tag_id) VALUES
 
 INSERT INTO system_settings (id, theme, language, sidebar_width, show_tag_colors) VALUES
 ('1', 'light', 'zh', 240, 1);
+
+CREATE TABLE gallery_categories (
+                                    id TEXT PRIMARY KEY,
+                                    user_id TEXT NOT NULL,
+                                    name TEXT NOT NULL,
+                                    description TEXT,
+                                    sort_order INTEGER DEFAULT 0,
+                                    created_at TEXT DEFAULT (datetime('now')),
+                                    updated_at TEXT DEFAULT (datetime('now')),
+                                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE gallery_images (
+                                id TEXT PRIMARY KEY,
+                                user_id TEXT NOT NULL,
+                                url TEXT NOT NULL,
+                                title TEXT,
+                                description TEXT,
+                                category_id TEXT,
+                                is_favorite INTEGER DEFAULT 0,
+                                width INTEGER,
+                                height INTEGER,
+                                date TEXT DEFAULT (datetime('now')),
+                                created_at TEXT DEFAULT (datetime('now')),
+                                updated_at TEXT DEFAULT (datetime('now')),
+                                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                                FOREIGN KEY (category_id) REFERENCES gallery_categories(id) ON DELETE SET NULL
+);

@@ -103,3 +103,55 @@ export const websiteTagsRelations = relations(websiteTags, ({ one }) => ({
         references: [tags.id]
     })
 }));
+
+
+// --- 图库相关表 (更新版) ---
+
+export const galleryCategories = sqliteTable('gallery_categories', {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), // 关联用户
+    name: text('name').notNull(),
+    description: text('description'),
+    sortOrder: integer('sort_order').default(0),
+    createdAt: text('created_at').default(sql`datetime('now')`),
+    updatedAt: text('updated_at').default(sql`datetime('now')`),
+});
+
+export const galleryImages = sqliteTable('gallery_images', {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), // 关联用户，方便直接查询所有图片
+    url: text('url').notNull(),
+    title: text('title'),
+    description: text('description'),
+    categoryId: text('category_id').references(() => galleryCategories.id, { onDelete: 'set null' }), // 关联分类
+    isFavorite: integer('is_favorite', { mode: 'boolean' }).default(false),
+    width: integer('width'),
+    height: integer('height'),
+    date: text('date').default(sql`datetime('now')`),
+    createdAt: text('created_at').default(sql`datetime('now')`),
+    updatedAt: text('updated_at').default(sql`datetime('now')`),
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+    categories: many(galleryCategories),
+    images: many(galleryImages),
+}));
+
+export const galleryCategoriesRelations = relations(galleryCategories, ({ one, many }) => ({
+    user: one(users, {
+        fields: [galleryCategories.userId],
+        references: [users.id]
+    }),
+    images: many(galleryImages)
+}));
+
+export const galleryImagesRelations = relations(galleryImages, ({ one }) => ({
+    user: one(users, {
+        fields: [galleryImages.userId],
+        references: [users.id]
+    }),
+    category: one(galleryCategories, {
+        fields: [galleryImages.categoryId],
+        references: [galleryCategories.id]
+    })
+}));

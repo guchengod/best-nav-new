@@ -855,7 +855,7 @@ import * as jose from 'jose';
 import {and, asc, count, desc, eq, inArray, like, or, sql} from 'drizzle-orm';
 import {createDb,} from './db';
 import {Menu, SystemSettings, Tag, Website} from './type.ts';
-import { menus, systemSettings, tags, users, websites, websiteTags } from "./db/schema.ts";
+import { menus, systemSettings, tags, users, websites, websiteTags, galleryCategories, galleryImages } from "./db/schema.ts";
 
 // This ensures c.env.DB is correctly typed
 type Bindings = {
@@ -870,7 +870,7 @@ type Variables = {
     user: any;
 };
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 async function md5(message: string): Promise<string> {
     const msgBuffer = new TextEncoder().encode(message);
@@ -922,6 +922,12 @@ async function authMiddleware(c: Context<{ Bindings: Bindings; Variables: Variab
         return c.json({ error: 'Invalid token' }, 401);
     }
 }
+
+const getUserId = (c: Context<{ Bindings: Bindings; Variables: Variables }>) => {
+    const user = c.get('user');
+    // 兼容旧 Token (sub) 和新 Token (userId)
+    return user.userId || user.sub;
+};
 
 // --- R2 Storage & Icon Routes ---
 
@@ -984,7 +990,7 @@ app.post('/api/fetch-icon', authMiddleware, async (c) => {
             const urlObj = new URL(url);
             domain = urlObj.hostname;
         } catch (e) {
-            return c.json({ error: 'Invalid URL' }, 400);
+            return c.json({ error: 'Invalid URL:'+e }, 400);
         }
 
         // Use Google's favicon service as it's reliable
@@ -1811,5 +1817,165 @@ async function checkUrls(d1: D1Database) {
         }
     }
 }
+
+
+// Get Gallery Categories (Scoped to User)
+app.get('/api/gallery/categories', authMiddleware, async (c) => {
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+
+    try {
+        const result = await db.select()
+            .from(galleryCategories)
+            .where(eq(galleryCategories.userId, userId))
+            .orderBy(asc(galleryCategories.sortOrder));
+        return c.json({ data: result });
+    } catch (error) {
+        return c.json({ error: 'Failed to fetch categories:'+error }, 500);
+    }
+});
+
+app.post('/api/gallery/categories', authMiddleware, async (c) => {
+    const body = await c.req.json();
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+    const id = crypto.randomUUID();
+
+    await db.insert(galleryCategories).values({
+        id,
+        userId: userId,
+        name: body.name,
+        description: body.description,
+        sortOrder: body.sortOrder || 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    });
+    return c.json({ data: { id } }, 201);
+});
+
+app.put('/api/gallery/categories/:id', authMiddleware, async (c) => {
+    const id = c.req.param('id');
+    const body = await c.req.json();
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+
+    await db.update(galleryCategories)
+        .set({ ...body, updatedAt: new Date().toISOString() })
+        .where(and(eq(galleryCategories.id, id), eq(galleryCategories.userId, userId)));
+    return c.json({ data: { id } });
+});
+
+app.delete('/api/gallery/categories/:id', authMiddleware, async (c) => {
+    const id = c.req.param('id');
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+
+    await db.delete(galleryCategories)
+        .where(and(eq(galleryCategories.id, id), eq(galleryCategories.userId, userId)));
+    return c.json({ data: { success: true } });
+});
+
+// Get Gallery Images (Scoped to User)
+app.get('/api/gallery/images', authMiddleware, async (c) => {
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+    const categoryId = c.req.query('categoryId');
+    const isFavorite = c.req.query('isFavorite');
+    const search = c.req.query('search');
+    const page = parseInt(c.req.query('page') || '1');
+    const pageSize = parseInt(c.req.query('pageSize') || '20');
+    const offset = (page - 1) * pageSize;
+
+    const conditions = [eq(galleryImages.userId, userId)]; // 强制用户隔离
+
+    if (categoryId && categoryId !== 'all' && categoryId !== 'favorites') {
+        conditions.push(eq(galleryImages.categoryId, categoryId));
+    }
+    if (categoryId === 'favorites' || isFavorite === 'true') {
+        conditions.push(eq(galleryImages.isFavorite, true));
+    }
+    if (search) {
+        conditions.push(or(like(galleryImages.title, `%${search}%`), like(galleryImages.description, `%${search}%`))!);
+    }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    try {
+        const [data, totalResult] = await Promise.all([
+            db.query.galleryImages.findMany({
+                with: {
+                    category: { columns: { name: true } }
+                },
+                where: whereClause,
+                orderBy: [desc(galleryImages.date), desc(galleryImages.createdAt)],
+                limit: pageSize,
+                offset: offset
+            }),
+            db.select({ count: count() }).from(galleryImages).where(whereClause)
+        ]);
+
+        const total = totalResult[0]?.count || 0;
+        return c.json({
+            data,
+            pagination: {
+                total,
+                page,
+                pageSize,
+                totalPages: Math.ceil(total / pageSize)
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        return c.json({ error: 'Failed to fetch images：'+error }, 500);
+    }
+});
+
+app.post('/api/gallery/images', authMiddleware, async (c) => {
+    const body = await c.req.json();
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+    const id = crypto.randomUUID();
+
+    await db.insert(galleryImages).values({
+        id,
+        userId: userId,
+        url: body.url,
+        title: body.title || 'Untitled',
+        description: body.description,
+        categoryId: body.categoryId || null,
+        width: body.width,
+        height: body.height,
+        date: body.date || new Date().toISOString(), // 允许前端传拍摄日期，否则用当前时间
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    });
+    return c.json({ data: { id } }, 201);
+});
+
+app.put('/api/gallery/images/:id', authMiddleware, async (c) => {
+    const id = c.req.param('id');
+    const body = await c.req.json();
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+
+    await db.update(galleryImages)
+        .set({ ...body, updatedAt: new Date().toISOString() })
+        .where(and(eq(galleryImages.id, id), eq(galleryImages.userId, userId)));
+    return c.json({ data: { id } });
+});
+
+app.delete('/api/gallery/images/:id', authMiddleware, async (c) => {
+    const id = c.req.param('id');
+    const db = createDb(c.env.DB);
+    const userId = getUserId(c);
+
+    // 这里可以增加删除 R2 文件的逻辑，如果需要更严格的清理
+
+    await db.delete(galleryImages)
+        .where(and(eq(galleryImages.id, id), eq(galleryImages.userId, userId)));
+    return c.json({ data: { success: true } });
+});
+
+
 
 export default app;

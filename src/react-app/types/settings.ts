@@ -67,3 +67,26 @@ export interface SystemSettings {
     language: string;
     sidebarWidth: number;
 }
+
+// --- 图库相关类型 ---
+export interface GalleryCategory {
+    id: string;
+    userId?: string;
+    name: string;
+    description?: string;
+    sortOrder: number;
+}
+
+export interface GalleryImage {
+    id: string;
+    userId?: string;
+    url: string;
+    title: string;
+    description?: string;
+    categoryId?: string;
+    category?: { name: string };
+    isFavorite: boolean;
+    date: string; // ISO date string or YYYY-MM-DD
+    width?: number;
+    height?: number;
+}
