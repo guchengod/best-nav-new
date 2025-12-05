@@ -866,7 +866,7 @@ import {
     galleryImages,
     gallerySettings
 } from "./db/schema.ts";
-
+import { logger } from 'hono/logger'
 // This ensures c.env.DB is correctly typed
 type Bindings = {
     DB: D1Database;
@@ -881,6 +881,8 @@ type Variables = {
 };
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+app.use(logger())
 
 async function md5(message: string): Promise<string> {
     const msgBuffer = new TextEncoder().encode(message);
@@ -2025,6 +2027,11 @@ app.put('/api/gallery/settings', authMiddleware, async (c) => {
 // NEW: Dedicated Share Endpoint (With Trusted Domain Check)
 app.get('/api/share/img/:key{.*}', async (c) => {
     const key = c.req.param('key');
+    console.log(`[Share] Requesting image: ${key}`);
+    if (!key) return c.json({error: 'Key missing'}, 404);
+
+
+
     const db = createDb(c.env.DB);
     // 构造对应的内部 URL 来查找数据库记录
     const internalUrl = `/api/rfile/${key}`;
@@ -2046,9 +2053,9 @@ app.get('/api/share/img/:key{.*}', async (c) => {
             // 3. 检查 Referer
             if (settings && settings.trustedDomains) {
                 const referer = c.req.header('Referer');
+                console.log(`[Share] Referer: ${referer}, Trusted: ${settings.trustedDomains}`);
 
-                // 只有当有 Referer 时才检查（浏览器直接访问/下载通常没有 Referer 或允许）
-                // 如果需要禁止直接访问，可以在这里处理
+                // 只有当有 Referer 时才检查
                 if (referer) {
                     try {
                         const refererUrl = new URL(referer);
@@ -2065,29 +2072,42 @@ app.get('/api/share/img/:key{.*}', async (c) => {
                             );
 
                             if (!isAllowed) {
-                                return c.text('Access Denied: Domain not trusted', 403);
+                                return c.text('Access Denied: Domain not trusted for this image.', 403);
                             }
                         }
                     } catch (e) {
-                        // Referer 格式错误，安全起见可以拦截或忽略
+                        // Referer 格式错误，忽略或拦截
+                        console.warn("[Share] Invalid referer:", referer);
                     }
                 }
             }
+        } else {
+            console.warn(`[Share] Image record not found in DB for ${internalUrl}`);
         }
 
         // 4. 返回文件
         const object = await c.env.BUCKET.get(key);
-        if (!object) return c.notFound();
+        if (!object) {
+            console.error(`[Share] File not found in R2: ${key}`);
+            // 返回 JSON 404 以避免 SPA 路由接管
+            return c.json({ error: 'Image file not found' }, 404);
+        }
 
         const headers = new Headers();
         object.writeHttpMetadata(headers);
         headers.set('etag', object.httpEtag);
+        // 重要：设置正确的 Content-Type，防止浏览器误认为是 HTML
+        if (object.httpMetadata?.contentType) {
+            headers.set('Content-Type', object.httpMetadata.contentType);
+        }
+        // 调试期间可以禁用缓存，以便立即看到效果
+        // headers.set('Cache-Control', 'no-store');
         headers.set('Cache-Control', 'public, max-age=31536000');
 
         return new Response(object.body, { headers });
     } catch (error) {
-        console.error('Share fetch error:', error);
-        return c.notFound();
+        console.error('[Share] Fetch error:', error);
+        return c.json({ error: 'Internal Server Error'+error }, 500);
     }
 });
 

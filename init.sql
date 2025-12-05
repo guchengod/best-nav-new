@@ -202,3 +202,17 @@ CREATE TABLE gallery_images (
                                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                                 FOREIGN KEY (category_id) REFERENCES gallery_categories(id) ON DELETE SET NULL
 );
+
+CREATE TABLE gallery_settings (
+
+                                  id TEXT PRIMARY KEY,
+
+                                  user_id TEXT NOT NULL,
+
+                                  trusted_domains TEXT,
+
+                                  created_at TEXT DEFAULT (datetime('now')),
+
+                                  updated_at TEXT DEFAULT (datetime('now')),
+                                  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
